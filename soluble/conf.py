@@ -7,6 +7,10 @@ CONFIG = {
         "default": "/etc/salt/minion",
         "help": "Path to the minion configuration template. Defaults to '/etc/salt/minion' or the master's default minion config",
     },
+    "node_prefix": {
+        "default": "ephemeral-node-",
+        "help": "A prefix to add to the ephemeral minion id",
+    },
 }
 
 CLI_CONFIG = {

@@ -24,9 +24,12 @@ async def accept_keys(hub, targets: list[str]) -> int:
     return retcode
 
 
-async def run_command(hub, salt_command: str, salt_options: list[str]) -> int:
+async def run_command(hub, name: str, salt_command: str) -> int:
     """Run a command on the Salt master, handling stdout, stderr, and error code."""
-    command = f"salt 'ephemeral-node-*' {salt_command} {' '.join(salt_options)}"
+    salt_options = hub.soluble.RUN[name].salt_options
+    node_prefix = hub.soluble.RUN[name].node_prefix
+
+    command = f"salt '{node_prefix}*' {salt_command} {' '.join(salt_options)}"
 
     process = await asyncio.create_subprocess_shell(
         command,
