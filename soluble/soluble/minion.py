@@ -1,5 +1,5 @@
-import os
 import pathlib
+import socket
 import tempfile
 
 import yaml
@@ -21,9 +21,8 @@ async def run(hub, name: str) -> int:
     # Run Teardown
     if not hub.soluble.RUN[name].bootstrap:
         hub.log.info("Running teardown on target(s)...")
-        await hub.soluble.ssh.run_command(
+        await hub.soluble.minion.teardown(
             name,
-            f"state.apply {os.path.basename(sls_file_path).replace('.sls', '')} saltenv=base",
         )
 
     return retcode
@@ -34,11 +33,12 @@ async def setup(hub, name: str):
     config = hub.soluble.RUN[name]
 
     # Load the minion config, modify it, and save it
-    with open(config["minion_config"]) as f:
+    with open(config.minion_config) as f:
         minion_config = yaml.safe_load(f)
 
     # Update the minion ID with a unique identifier
-    minion_id = f"ephemeral-node-{config['ssh_target']}"
+    node_prefix = hub.soluble.RUN[name].node_prefix
+    minion_id = f"{node_prefix}{socket.gethostname()}"
     minion_config["id"] = minion_id
 
     # Dump the updated minion config back to a file
@@ -50,7 +50,7 @@ async def setup(hub, name: str):
             "copy_minion_config": {
                 "file.managed": [
                     {"name": "/etc/salt/minion"},
-                    {"source": cfg.name},
+                    {"source": f"file://{cfg.name}"},
                     {"user": "root"},
                     {"group": "root"},
                     {"mode": "644"},
@@ -68,6 +68,7 @@ async def setup(hub, name: str):
 
         with tempfile.NamedTemporaryFile(suffix=".sls", delete=True) as fh:
             fh.write(yaml.safe_dump(sls_content))
+            fh.flush()
             p = pathlib.Path(fh.name)
 
             hub.log.info("Running setup on target(s)...")
