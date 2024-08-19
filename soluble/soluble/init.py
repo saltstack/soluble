@@ -1,4 +1,7 @@
 import sys
+import uuid
+
+from dict_tools.data import NamespaceDict
 
 
 def cli(hub):
@@ -19,4 +22,7 @@ async def run(hub, **kwargs) -> int:
     if not hub.SUBPARSER:
         print(hub.args.parser.help())
         return 2
-    return await hub.soluble[hub.SUBPARSER].run(**kwargs)
+
+    run_name = uuid.uuid4()
+    hub.soluble.RUN[run_name] = NamespaceDict(**kwargs)
+    return await hub.soluble[hub.SUBPARSER].run(run_name)

@@ -1,10 +1,35 @@
+import asyncio.subprocess
 
-async def accept_keys(hub, targets: list[str]):
+
+async def accept_keys(hub, targets: list[str]) -> int:
     """Accept the ephemeral minion keys on the Salt master."""
+    retcode = 0
     for target in targets:
         minion_id = await hub.soluble.minion.get_id(target)
-        await hub.soluble.ssh.run_command(f"salt-key -a {minion_id} -y", escalate=True)
+        command = f"salt-key -a {minion_id} -y"
 
-async def run_salt_command(hub, salt_command: str, salt_options: list[str]):
-    """Run the specified Salt command targeting all ephemeral minions."""
-    await hub.soluble.ssh.run_command(f"salt 'ephemeral-node-*' {salt_command} {' '.join(salt_options)}", escalate=True)
+        process = await asyncio.create_subprocess_shell(
+            command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
+
+        # Log the stdout and stderr
+        hub.log.info(stdout.decode("utf-8"))
+        if process.returncode != 0:
+            hub.log.error(stderr.decode("utf-8"))
+
+        # Update the retcode if any command fails
+        retcode = retcode or process.returncode
+
+    return retcode
+
+
+async def run_command(hub, salt_command: str, salt_options: list[str]) -> int:
+    """Run a command on the Salt master, handling stdout, stderr, and error code."""
+    command = f"salt 'ephemeral-node-*' {salt_command} {' '.join(salt_options)}"
+
+    process = await asyncio.create_subprocess_shell(
+        command,
+    )
+
+    return await process.wait()

@@ -1,81 +1,62 @@
 import os
 
 
-async def run(
-    hub,
-    ssh_target: str,
-    salt_command: str,
-    *,
-    roster_file: str,
-    minion_config: str,
-    salt_options: list[str],
-    salt_ssh_options: list[str],
-    **kwargs,
-) -> int:
-    await hub.soluble.minion.get_config(minion_config)
+async def run(hub, name: str) -> int:
+    await hub.soluble.minion.get_config(name)
 
     hub.log.info("Copying minion configuration to target(s)...")
-    await hub.soluble.minion.copy_config(salt_ssh_options, minion_config)
+    await hub.soluble.minion.copy_config(name)
 
     hub.log.info("Installing Salt on target(s)...")
-    await hub.soluble.minion.install_salt(salt_ssh_options)
+    await hub.soluble.minion.install_salt(name)
 
     hub.log.info("Starting salt-minion service on target(s)...")
-    await hub.soluble.minion.start_service(salt_ssh_options)
+    await hub.soluble.minion.start_service(name)
 
     hub.log.info("Getting target minions...")
-    targets = await hub.soluble.ssh.get_targets(salt_ssh_options)
+    targets = await hub.soluble.ssh.get_targets(name)
 
     hub.log.info("Accepting minion key(s) on Salt master...")
-    await hub.soluble.master.accept_keys(targets)
+    await hub.soluble.master.accept_keys(name, targets)
 
     hub.log.info("Running specified Salt command on ephemeral minions...")
-    await hub.soluble.master.run_salt_command(salt_command, salt_options)
+    retcode = await hub.soluble.master.run_command(name)
 
     hub.log.info("Tearing down the ephemeral minions on target(s)...")
-    await hub.soluble.minion.teardown(salt_ssh_options)
+    await hub.soluble.minion.teardown(name)
 
-    hub.log.info("Done.")
-    return 0
+    return retcode
 
 
-async def get_config(hub, minion_config_template: str):
+async def get_config(hub, name: str):
     """Fetch the minion config from the Salt master if it's not found locally."""
-    if not os.path.exists(minion_config_template):
+    template = hub.soluble.RUN[name].minion_config
+    if not os.path.exists(template):
         hub.log.info("Fetching minion config from Salt master...")
-        await hub.soluble.ssh.run_command(
-            f"salt-call --local cp.get_file salt://minion {minion_config_template}"
+        await hub.soluble.master.run_command(
+            f"salt-call --local cp.get_file salt://minion {template}"
         )
 
 
-async def get_id(hub, target: str) -> str:
-    """Generate an ephemeral minion ID."""
-    return f"ephemeral-node-{target}"
-
-
-async def copy_config(hub, ssh_options: list[str], minion_config_template: str):
+async def copy_config(hub, name: str):
     """Copy the minion config to the targets using salt-ssh."""
+    template = hub.soluble.RUN[name].minion_config
     await hub.soluble.ssh.run_command(
-        f"salt-ssh {' '.join(ssh_options)} state.apply copy_minion_config pillar=\"{{'minion_config_template':'{minion_config_template}'}}\""
+        name,
+        f"state.apply copy_minion_config pillar=\"{{'minion_config_template':'{template}'}}\"",
     )
 
 
-async def install_salt(hub, ssh_options: list[str]):
+async def install_salt(hub, name: str):
     """Install Salt on the targets using salt-ssh."""
-    await hub.soluble.ssh.run_command(
-        f"salt-ssh {' '.join(ssh_options)} state.apply install_salt"
-    )
+    await hub.soluble.ssh.run_command(name, "state.apply install_salt")
 
 
-async def start_service(hub, ssh_options: list[str]):
+async def start_service(hub, name: str):
     """Start the salt-minion service on the targets using salt-ssh."""
-    await hub.soluble.ssh.run_command(
-        f"salt-ssh {' '.join(ssh_options)} state.apply start_minion_service"
-    )
+    await hub.soluble.ssh.run_command(name, "state.apply start_minion_service")
 
 
-async def teardown(hub, ssh_options: list[str]):
+async def teardown(hub, name: str):
     """Teardown the ephemeral minions using salt-ssh."""
-    await hub.soluble.ssh.run_command(
-        f"salt-ssh {' '.join(ssh_options)} state.apply teardown_minion"
-    )
+    await hub.soluble.ssh.run_command(name, "state.apply teardown_minion")
