@@ -106,23 +106,6 @@ repos:
 
   # <---- Testing Static Requirements -------------------------------------------------------------------------------------
 
-  # ----- Docs -------------------------------------------------------------------------------------------------->
-
-  - repo: https://github.com/saltstack/mirrors-nox
-    rev: v2022.8.7
-    hooks:
-      - id: nox
-        alias: Generate Sphinx docs
-        description: Generate Sphinx docs, ensure they build
-        files: ^((CONTRIBUTING|README)|docs/.*)\.rst$
-        pass_filenames: false
-        args:
-          - -e
-          - 'docs-html(clean=True)'
-          - --
-
-  # <---- Docs ---------------------------------------------------------------------------------------------------
-
   # ----- Security -------------------------------------------------------------------------------------------------->
   - repo: https://github.com/PyCQA/bandit
     rev: "1.7.4"

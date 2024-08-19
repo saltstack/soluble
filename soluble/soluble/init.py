@@ -1,4 +1,3 @@
-import pprint
 import sys
 
 
@@ -23,19 +22,4 @@ async def run(hub, **kwargs) -> int:
     if not hub.SUBPARSER:
         print(hub.args.parser.help())
         return 2
-    return await hub.soluble.init[hub.SUBPARSER](**kwargs)
-
-
-async def minion(
-    hub,
-    ssh_target: str,
-    salt_command: str,
-    *,
-    roster_file: str,
-    minion_config: str,
-    salt_options: list[str],
-    salt_ssh_options: list[str],
-    **kwargs
-) -> int:
-    pprint.pprint(locals())
-    return 0
+    return await hub.soluble[hub.SUBPARSER].run(**kwargs)
