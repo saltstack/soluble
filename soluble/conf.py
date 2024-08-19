@@ -40,6 +40,12 @@ CLI_CONFIG = {
         "action": "append",
         "help": "Additional options to be forwarded to salt-ssh",
     },
+    "bootstrap": {
+        "action": "store_true",
+        "default": False,
+        "help": "Don't tear down the minion",
+        "subcommands": ["minion"],
+    },
 }
 
 SUBCOMMANDS = {
