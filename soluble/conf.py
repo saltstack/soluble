@@ -12,16 +12,14 @@ CONFIG = {
 CLI_CONFIG = {
     "roster_file": {"options": ["-R"]},
     "minion_config": {"subcommands": ["minion"]},
-    "ssh-target": {
+    "ssh_target": {
         "positional": True,
-        "nargs": 1,
         "display_priority": 1,
         "subcommands": ["minion"],
         "help": "Target for the salt-ssh command. This is typically a minion ID, wildcard, or grain.",
     },
     "salt_command": {
         "positional": True,
-        "nargs": 1,
         "display_priority": 2,
         "subcommands": ["minion"],
         "help": "The salt command to run on the ephemeral nodes",
@@ -33,7 +31,7 @@ CLI_CONFIG = {
         "subcommands": ["minion"],
         "help": "Additional options to be passed to the salt command",
     },
-    "salt_ssh-options": {
+    "salt_ssh_options": {
         "options": ["-O"],
         "action": "append",
         "help": "Additional options to be forwarded to salt-ssh",

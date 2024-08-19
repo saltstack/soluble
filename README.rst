@@ -53,13 +53,11 @@ If wanting to use ``soluble``, you can do so by either installing from PyPI or f
 Install from PyPI
 +++++++++++++++++
 
-.. todo:: (Set ``todo_include_todos = False`` in ``docs/conf.py`` to hide this)
+If package is available via PyPI, include the directions.
 
-   If package is available via PyPI, include the directions.
+.. code-block:: bash
 
-   .. code-block:: bash
-
-      pip install soluble
+   pip install soluble
 
 Install from source
 +++++++++++++++++++
