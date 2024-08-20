@@ -30,17 +30,8 @@ async def run(hub, name: str) -> int:
     return retcode
 
 
-async def get_id(hub, name: str, target: str = None) -> str:
-    node_prefix = hub.soluble.RUN[name].node_prefix
-    if not target:
-        target = socket.gethostname()
-
-    minion_id = f"{node_prefix}{target}"
-    return minion_id
-
-
 async def setup(hub, name: str):
-    """Setup the ephemeral minion by generating and applying the SLS file."""
+    """Setup the ephemeral minion using raw Salt execution modules."""
     config = hub.soluble.RUN[name]
 
     # Load the minion config, modify it, and save it
@@ -50,68 +41,58 @@ async def setup(hub, name: str):
     except FileNotFoundError:
         minion_config = {}
 
-    # Update the minion ID with a unique identifier
-    minion_id = await hub.soluble.minion.get_id(name)
-    minion_config["id"] = minion_id
-
     # Dump the updated minion config back to a file
     with tempfile.NamedTemporaryFile("w+", suffix="_config.yaml", delete=True) as cfg:
-        cfg.write(yaml.safe_dump(minion_config))
+        yaml.safe_dump(minion_config, cfg)
 
-        # Create the setup SLS content
-        sls_content = {
-            "copy_minion_config": {
-                "file.managed": [
-                    {"name": "/etc/salt/minion"},
-                    {"source": f"file://{cfg.name}"},
-                    {"user": "root"},
-                    {"group": "root"},
-                    {"mode": "644"},
-                ]
-            },
-            "install_salt": {"pkg.installed": [{"name": "salt-minion"}]},
-            "start_minion_service": {
-                "service.running": [
-                    {"name": "salt-minion"},
-                    {"enable": True},
-                    {"watch": [{"pkg": "install_salt"}]},
-                ]
-            },
-        }
+        # Copy the minion config to the target
+        hub.log.info("Copying minion configuration to target(s)...")
+        #await hub.soluble.ssh.run_command(
+        #    name, f"cp.get_file file://{cfg.name} /etc/salt/minion"
+        #)
+        
+    # Create the minion config file
+    node_prefix = hub.soluble.RUN[name].node_prefix
+    hub.log.info("Setting minion ids")
+    await hub.soluble.ssh.run_command(
+        name, f'state.single cmd.run name="echo {node_prefix}$(hostname) > /etc/salt/minion_id"'
+    )
 
-        with tempfile.NamedTemporaryFile("w+", suffix=".sls", delete=True) as fh:
-            fh.write(yaml.safe_dump(sls_content))
-            fh.flush()
-            p = pathlib.Path(fh.name)
+    # Install Salt on the target
+    hub.log.info("Installing Salt on target(s)...")
+    await hub.soluble.ssh.run_command(
+        name, "pkg.install name=salt-minion"
 
-            hub.log.info("Running setup on target(s)...")
-            await hub.soluble.ssh.run_command(name, f"state.apply {p.stem}")
+    )
 
+    # Start the Salt minion service
+    hub.log.info("Starting salt-minion service on target(s)...")
+    await hub.soluble.ssh.run_command(
+        name, "service.start name=salt-minion"
+    )
 
+    # Enable the service to start on boot
+    await hub.soluble.ssh.run_command(
+        name, "service.enable name=salt-minion"
+    )
+
+    
 async def teardown(hub, name: str):
-    """Teardown the ephemeral minion by generating and applying the SLS file."""
-    # Create the teardown SLS content
-    sls_content = {
-        "stop_minion_service": {"service.dead": [{"name": "salt-minion"}]},
-        "uninstall_salt": {"pkg.purged": [{"name": "salt-minion"}]},
-        "remove_minion_config": {
-            "file.absent": [
-                {"name": "/etc/salt/minion"},
-                {
-                    "require": [
-                        {"service": "stop_minion_service"},
-                        {"pkg": "uninstall_salt"},
-                    ]
-                },
-            ]
-        },
-    }
+    """Teardown the ephemeral minion using raw Salt execution modules."""
+    # Stop the Salt minion service
+    hub.log.info("Stopping salt-minion service on target(s)...")
+    await hub.soluble.ssh.run_command(
+        name, "service.stop name=salt-minion"
+    )
 
-    with tempfile.NamedTemporaryFile("w+", suffix=".sls", delete=True) as fh:
-        fh.write(yaml.safe_dump(sls_content))
-        fh.flush()
+    # Uninstall Salt from the target
+    hub.log.info("Uninstalling Salt from target(s)...")
+    await hub.soluble.ssh.run_command(
+        name, "pkg.remove name=salt-minion"
+    )
 
-        p = pathlib.Path(fh.name)
-
-        hub.log.info("Running teardown on target(s)...")
-        await hub.soluble.ssh.run_command(name, f"state.apply {p.stem}")
+    # Remove the minion configuration file
+    hub.log.info("Removing minion configuration from target(s)...")
+    await hub.soluble.ssh.run_command(
+        name, "file.remove /etc/salt/minion"
+    )

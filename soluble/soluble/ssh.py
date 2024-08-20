@@ -45,7 +45,7 @@ async def run_command(hub, name: str, command: str) -> str:
             process.stdin.write(user_input.encode("utf-8") + b"\n")
             await process.stdin.drain()
 
-    asyncio.create_task(handle_input())
+    t  = asyncio.create_task(handle_input())
 
     # Read stderr in real-time and handle it
     while True:
@@ -62,6 +62,7 @@ async def run_command(hub, name: str, command: str) -> str:
     stdout, _ = await process.communicate()
 
     returncode = await process.wait()
+    t.cancel()
 
     if returncode != 0:
         raise ChildProcessError(
