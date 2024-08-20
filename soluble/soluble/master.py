@@ -9,7 +9,7 @@ async def accept_keys(hub, name, targets: list[str]) -> int:
     assert cmd, "Could not find salt-key"
     retcode = 0
     for target in targets:
-        minion_id = await hub.soluble.minion.get_id(target)
+        minion_id = await hub.soluble.minion.get_id(name, target)
         command = f"{cmd} -a {minion_id} -y"
         if escalate:
             command = f"sudo -E {command}"

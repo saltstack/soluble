@@ -18,7 +18,7 @@ CONFIG = {
     "escalate": {
         "default": False,
         "help": "Run salt commands as root",
-    }
+    },
 }
 
 CLI_CONFIG = {

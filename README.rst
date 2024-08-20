@@ -84,10 +84,9 @@ Soluble is designed to simplify the process of setting up ephemeral Salt minions
    ./soluble.py -r /path/to/roster -m /path/to/minion.conf 'state.highstate' -- -c /etc/salt --verbose
 
 In this example:
-- The `-r` flag specifies the path to the roster file for `salt-ssh`.
-- The `-m` flag specifies the minion configuration template. If not provided, it defaults to `/etc/salt/minion`.
+- The `-R` flag specifies the path to the roster file for `salt-ssh`.
+- The `--minion-config` flag specifies the minion configuration template. If not provided, it defaults to `/etc/salt/minion`.
 - The first positional argument (`state.highstate`) is the Salt command to be executed on the ephemeral minions.
-- Arguments after `--` are passed directly to `salt-ssh` for setting up and tearing down the ephemeral nodes.
 
 Examples
 --------
@@ -97,13 +96,13 @@ Here are a few more examples of how you can use Soluble:
 .. code-block:: bash
 
    # Install a package on ephemeral nodes
-   ./soluble.py -r /path/to/roster -m /path/to/minion.conf 'pkg.install vim' -- -c /etc/salt --verbose
+   soluble minion '*' 'pkg.install vim'
 
    # Apply a state file
-   ./soluble.py -r /path/to/roster -m /path/to/minion.conf 'state.apply my_state' -- -c /etc/salt --static
+   soluble '*' 'state.apply my_state'
 
-   # Clean up ephemeral nodes after executing a command
-   ./soluble.py -r /path/to/roster 'test.ping' -- -W --wipe
+   # Ping minions
+   soluble minion '*' 'test.ping'
 
 Roadmap
 =======

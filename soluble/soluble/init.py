@@ -3,6 +3,7 @@ import uuid
 
 from dict_tools.data import NamespaceDict
 
+
 def __init__(hub):
     hub.soluble.RUN = {}
 

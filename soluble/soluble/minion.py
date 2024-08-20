@@ -16,7 +16,9 @@ async def run(hub, name: str) -> int:
     await hub.soluble.master.accept_keys(name, targets)
 
     hub.log.info("Running specified Salt command on ephemeral minions...")
-    retcode = await hub.soluble.master.run_command(name)
+    command = hub.soluble.RUN[name].salt_command
+    command += " ".join(hub.soluble.RUN[name].salt_options)
+    retcode = await hub.soluble.master.run_command(name, command)
 
     # Run Teardown
     if not hub.soluble.RUN[name].bootstrap:
@@ -28,6 +30,15 @@ async def run(hub, name: str) -> int:
     return retcode
 
 
+async def get_id(hub, name: str, target: str = None) -> str:
+    node_prefix = hub.soluble.RUN[name].node_prefix
+    if not target:
+        target = socket.gethostname()
+
+    minion_id = f"{node_prefix}{target}"
+    return minion_id
+
+
 async def setup(hub, name: str):
     """Setup the ephemeral minion by generating and applying the SLS file."""
     config = hub.soluble.RUN[name]
@@ -35,13 +46,12 @@ async def setup(hub, name: str):
     # Load the minion config, modify it, and save it
     try:
         with open(config.minion_config) as f:
-            minion_config = yaml.safe_load(f)
+            minion_config = yaml.safe_load(f) or {}
     except FileNotFoundError:
         minion_config = {}
 
     # Update the minion ID with a unique identifier
-    node_prefix = hub.soluble.RUN[name].node_prefix
-    minion_id = f"{node_prefix}{socket.gethostname()}"
+    minion_id = await hub.soluble.minion.get_id(name)
     minion_config["id"] = minion_id
 
     # Dump the updated minion config back to a file
