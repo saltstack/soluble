@@ -1,3 +1,5 @@
+import salt.utils.parsers as salt_parsers
+
 CONFIG = {
     "roster_file": {
         "default": None,
@@ -43,11 +45,6 @@ CLI_CONFIG = {
         "subcommands": ["minion"],
         "help": "Additional options to be passed to the salt command",
     },
-    "salt_ssh_options": {
-        "options": ["-O"],
-        "action": "append",
-        "help": "Additional options to be forwarded to salt-ssh",
-    },
     "bootstrap": {
         "action": "store_true",
         "subcommands": ["minion"],
@@ -57,6 +54,24 @@ CLI_CONFIG = {
         "subcommands": ["minion"],
     },
 }
+ssh_parser = salt_parsers.SaltSSHOptionParser()
+for opt in ssh_parser._get_all_options():
+    if not opt.dest:
+        continue
+    name = str(opt.dest)
+    if name in CLI_CONFIG:
+        continue
+    CLI_CONFIG[name] = dict(
+        dest=opt.dest,
+        default=opt.default,
+        help=str(opt.help).replace("%", " "),
+        metavar=opt.metavar,
+        choies=opt.choices,
+        action=opt.action if "store" in opt.action else None,
+        nargs=opt.nargs,
+        options=opt._short_opts + opt._long_opts,
+        group="Salt-SSH Options",
+    )
 
 SUBCOMMANDS = {
     "minion": {

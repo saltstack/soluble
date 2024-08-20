@@ -17,7 +17,7 @@ async def run_command(hub, name: str, command: str) -> str:
     cmd = hub.lib.shutil.which("salt-ssh")
     assert cmd, "Could not find salt-ssh"
 
-    full_command = f'{cmd} "{target}" --roster-file={roster} {command} -l {hub.OPT.pop_config.log_level} --log-file={hub.OPT.pop_config.log_file} --hard-crash {options}'
+    full_command = f'{cmd} "{target}" --askpass --roster-file={roster} {command} -l {hub.OPT.pop_config.log_level} --log-file={hub.OPT.pop_config.log_file} --hard-crash {options}'
     if escalate:
         sudo = hub.lib.shutil.which("sudo")
         if sudo:
