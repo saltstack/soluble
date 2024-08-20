@@ -10,12 +10,17 @@ soluble
    :alt: Made with Python
    :target: https://www.python.org/
 
-Soluble is a tool for setting up, managing, and tearing down ephemeral Salt minions on remote systems using a streamlined Python-based approach. It simplifies the deployment of temporary nodes that can execute Salt commands and clean up afterward, making it ideal for transient infrastructure needs.
+Soluble is a tool for setting up, managing, and tearing down ephemeral Salt minions on remote systems u
+sing a streamlined Python-based approach. It simplifies the deployment of temporary nodes that can 
+execute Salt commands and clean up afterward, making it ideal for transient infrastructure needs.
 
 About
 =====
 
-Soluble is designed to replace the discontinued Heist project by SaltStack/VMware/Broadcom, which aimed to streamline the deployment of ephemeral nodes with Salt. Soluble leverages `salt-ssh` for setting up and tearing down temporary Salt minions, allowing users to execute Salt commands on these minions before safely removing them. The entire process is managed by a Python script, ensuring ease of use, flexibility, and integration with existing Python-based infrastructure.
+Soluble is designed aims to streamline the deployment of ephemeral nodes with Salt leveraging `salt-ssh` 
+for setting up and tearing down temporary Salt minions, allowing users to execute Salt commands on these 
+minions before safely removing them. The entire process is managed by a Python script, ensuring ease of use, 
+flexibility, and integration with existing Python-based infrastructure.
 
 What is POP?
 ------------
@@ -76,17 +81,17 @@ Install from source
 Usage
 =====
 
-Soluble is designed to simplify the process of setting up ephemeral Salt minions, running commands, and then cleaning up those minions. Here’s a basic usage example:
+Soluble is designed to simplify the process of setting up ephemeral Salt minions, running commands, 
+and then cleaning up those minions. Here’s a basic usage example:
 
 .. code-block:: bash
 
    # Example usage of soluble.py
-   ./soluble.py -r /path/to/roster -m /path/to/minion.conf 'state.highstate' -- -c /etc/salt --verbose
+   soluble -R /path/to/roster 'test.ping'
 
 In this example:
 - The `-R` flag specifies the path to the roster file for `salt-ssh`.
-- The `--minion-config` flag specifies the minion configuration template. If not provided, it defaults to `/etc/salt/minion`.
-- The first positional argument (`state.highstate`) is the Salt command to be executed on the ephemeral minions.
+- The first positional argument (`test.ping`) is the Salt command to be executed on the ephemeral minions.
 
 Examples
 --------
