@@ -7,7 +7,7 @@ from setuptools import Command
 from setuptools import setup
 
 NAME = "soluble"
-DESC = ""
+DESC = "Set up a dissolvable, ephemeral salt minion using salt-ssh"
 
 # Version info -- read without importing
 _locals = {}

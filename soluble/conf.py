@@ -11,6 +11,14 @@ CONFIG = {
         "default": "ephemeral-node-",
         "help": "A prefix to add to the ephemeral minion id",
     },
+    "bootstrap": {
+        "default": False,
+        "help": "Don't tear down the minion",
+    },
+    "escalate": {
+        "default": False,
+        "help": "Run salt commands as root",
+    }
 }
 
 CLI_CONFIG = {
@@ -42,8 +50,10 @@ CLI_CONFIG = {
     },
     "bootstrap": {
         "action": "store_true",
-        "default": False,
-        "help": "Don't tear down the minion",
+        "subcommands": ["minion"],
+    },
+    "escalate": {
+        "action": "store_true",
         "subcommands": ["minion"],
     },
 }

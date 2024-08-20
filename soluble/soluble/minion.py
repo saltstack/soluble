@@ -33,8 +33,11 @@ async def setup(hub, name: str):
     config = hub.soluble.RUN[name]
 
     # Load the minion config, modify it, and save it
-    with open(config.minion_config) as f:
-        minion_config = yaml.safe_load(f)
+    try:
+        with open(config.minion_config) as f:
+            minion_config = yaml.safe_load(f)
+    except FileNotFoundError:
+        minion_config = {}
 
     # Update the minion ID with a unique identifier
     node_prefix = hub.soluble.RUN[name].node_prefix
@@ -42,7 +45,7 @@ async def setup(hub, name: str):
     minion_config["id"] = minion_id
 
     # Dump the updated minion config back to a file
-    with tempfile.NamedTemporaryFile(suffix="_config.yaml", delete=True) as cfg:
+    with tempfile.NamedTemporaryFile("w+", suffix="_config.yaml", delete=True) as cfg:
         cfg.write(yaml.safe_dump(minion_config))
 
         # Create the setup SLS content
@@ -66,7 +69,7 @@ async def setup(hub, name: str):
             },
         }
 
-        with tempfile.NamedTemporaryFile(suffix=".sls", delete=True) as fh:
+        with tempfile.NamedTemporaryFile("w+", suffix=".sls", delete=True) as fh:
             fh.write(yaml.safe_dump(sls_content))
             fh.flush()
             p = pathlib.Path(fh.name)
@@ -94,7 +97,7 @@ async def teardown(hub, name: str):
         },
     }
 
-    with tempfile.NamedTemporaryFile(suffix=".sls", delete=True) as fh:
+    with tempfile.NamedTemporaryFile("w+", suffix=".sls", delete=True) as fh:
         fh.write(yaml.safe_dump(sls_content))
         fh.flush()
 

@@ -1,6 +1,7 @@
 import asyncio.subprocess
 import json
 import sys
+import shutil
 
 
 async def get_targets(hub, name: str) -> list[str]:
@@ -13,8 +14,13 @@ async def run_command(hub, name: str, command: str) -> str:
     """Run a salt-ssh command asynchronously and return the output."""
     target = hub.soluble.RUN[name].ssh_target
     roster = hub.soluble.RUN[name].roster_file
-
-    full_command = f"salt-ssh {target} --roster={roster} {command}"
+    escalate = hub.soluble.RUN[name].escalate
+    cmd = shutil.which("salt-ssh")
+    assert cmd, "Could not find salt-ssh"
+    
+    full_command = f"{cmd} {target} --roster={roster} {command} --log-file={hub.OPT.pop_config.log_file}"
+    if escalate:
+        full_command = f"sudo -E {full_command}"
 
     process = await asyncio.create_subprocess_shell(
         full_command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE

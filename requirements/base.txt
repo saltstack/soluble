@@ -1,1 +1,2 @@
 pop>=17.0
+salt-ssh

@@ -3,6 +3,9 @@ import uuid
 
 from dict_tools.data import NamespaceDict
 
+def __init__(hub):
+    hub.soluble.RUN = {}
+
 
 def cli(hub):
     hub.pop.config.load(["soluble"], cli="soluble")
