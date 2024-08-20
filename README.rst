@@ -11,15 +11,15 @@ soluble
    :target: https://www.python.org/
 
 Soluble is a tool for setting up, managing, and tearing down ephemeral Salt minions on remote systems u
-sing a streamlined Python-based approach. It simplifies the deployment of temporary nodes that can 
+sing a streamlined Python-based approach. It simplifies the deployment of temporary nodes that can
 execute Salt commands and clean up afterward, making it ideal for transient infrastructure needs.
 
 About
 =====
 
-Soluble is designed aims to streamline the deployment of ephemeral nodes with Salt leveraging `salt-ssh` 
-for setting up and tearing down temporary Salt minions, allowing users to execute Salt commands on these 
-minions before safely removing them. The entire process is managed by a Python script, ensuring ease of use, 
+Soluble is designed aims to streamline the deployment of ephemeral nodes with Salt leveraging `salt-ssh`
+for setting up and tearing down temporary Salt minions, allowing users to execute Salt commands on these
+minions before safely removing them. The entire process is managed by a Python script, ensuring ease of use,
 flexibility, and integration with existing Python-based infrastructure.
 
 What is POP?
@@ -81,7 +81,7 @@ Install from source
 Usage
 =====
 
-Soluble is designed to simplify the process of setting up ephemeral Salt minions, running commands, 
+Soluble is designed to simplify the process of setting up ephemeral Salt minions, running commands,
 and then cleaning up those minions. Here’s a basic usage example:
 
 .. code-block:: bash
