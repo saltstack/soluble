@@ -67,7 +67,7 @@ setup(
     name="soluble",
     author="Tyler Levy Conde",
     author_email="tyler.levy-conde@broadcom.com",
-    url="",
+    url="https://github.com/akm0d/soluble",
     version=VERSION,
     install_requires=REQUIREMENTS,
     extras_require=REQUIREMENTS_EXTRA,
