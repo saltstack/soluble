@@ -19,10 +19,11 @@ async def run_command(hub, name: str, command: str) -> str:
     target = hub.soluble.RUN[name].ssh_target
     roster = hub.soluble.RUN[name].roster_file
     escalate = hub.soluble.RUN[name].escalate
+    options = " ".join(x.strip('"') for x in hub.soluble.RUN[name].salt_ssh_options)
     cmd = shutil.which("salt-ssh")
     assert cmd, "Could not find salt-ssh"
 
-    full_command = f'{cmd} "{target}" --roster-file={roster} {command} --log-file={hub.OPT.pop_config.log_file} --hard-crash'
+    full_command = f'{cmd} "{target}" --roster-file={roster} {command} -l {hub.OPT.pop_config.log_level} --log-file={hub.OPT.pop_config.log_file} --hard-crash {options}'
     if escalate:
         full_command = f"sudo -E {full_command}"
 

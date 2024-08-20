@@ -1,3 +1,4 @@
+import os.path
 import sys
 import uuid
 
@@ -19,7 +20,7 @@ def cli(hub):
     sys.exit(retcode)
 
 
-async def run(hub, **kwargs) -> int:
+async def run(hub, roster_file: str, **kwargs) -> int:
     """
     This is the entrypoint for the async code in your project
     """
@@ -27,6 +28,12 @@ async def run(hub, **kwargs) -> int:
         print(hub.args.parser.help())
         return 2
 
+    if not roster_file:
+        if os.getuid() == 0:
+            roster_file = "/etc/salt/roster"
+        else:
+            roster_file = os.path.expanduser("~/.salt/roster")
+
     run_name = uuid.uuid4()
-    hub.soluble.RUN[run_name] = NamespaceDict(**kwargs)
+    hub.soluble.RUN[run_name] = NamespaceDict(roster_file=roster_file, **kwargs)
     return await hub.soluble[hub.SUBPARSER].run(run_name)

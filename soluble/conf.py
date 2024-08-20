@@ -1,6 +1,6 @@
 CONFIG = {
     "roster_file": {
-        "default": "/srv/salt/roster",
+        "default": None,
         "help": "Path to the roster file for salt-ssh",
     },
     "minion_config": {
