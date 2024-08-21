@@ -35,9 +35,10 @@ async def setup(hub, name: str):
     # Create the minion id file
     node_prefix = hub.soluble.RUN[name].node_prefix
     hub.log.info("Setting minion ids")
+    minion_id = hub.lib.shlex.quote(f"{node_prefix}$(hostname)$(echo $RANDOM)")
     await hub.soluble.ssh.run_command(
         name,
-        f'state.single cmd.run name="echo {node_prefix}$(hostname) > /etc/salt/minion_id"',
+        f'state.single cmd.run name="echo {minion_id} > /etc/salt/minion_id"',
     )
 
     # Install Salt on the target

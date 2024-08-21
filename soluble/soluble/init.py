@@ -5,14 +5,13 @@ def __init__(hub):
     hub.pop.sub.add(python_import="json", sub=hub.lib)
     hub.pop.sub.add(python_import="os", sub=hub.lib)
     hub.pop.sub.add(python_import="pathlib", sub=hub.lib, subname="path")
-    hub.pop.sub.add(
-        python_import="pprint",
-        sub=hub.lib,
-    )
+    hub.pop.sub.add(python_import="pprint", sub=hub.lib)
+    hub.pop.sub.add(python_import="random", sub=hub.lib)
     hub.pop.sub.add(python_import="shutil", sub=hub.lib)
     hub.pop.sub.add(python_import="salt", sub=hub.lib)
     hub.pop.sub.add(python_import="socket", sub=hub.lib)
     hub.pop.sub.add(python_import="tempfile", sub=hub.lib)
+    hub.pop.sub.add(python_import="shlex", sub=hub.lib)
     hub.pop.sub.add(python_import="sys", sub=hub.lib)
     hub.pop.sub.add(python_import="uuid", sub=hub.lib)
     hub.pop.sub.add(python_import="yaml", sub=hub.lib)

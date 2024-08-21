@@ -42,7 +42,7 @@ Prerequisites
 * Python 3.10+
 * git *(if installing from source, or contributing to the project)*
 * SaltStack installed on the master node
-* `salt-ssh` and `salt-key` commands available
+* `salt` and `salt-key` commands available
 
 Installation
 ------------
