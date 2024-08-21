@@ -1,9 +1,12 @@
 import salt.utils.parsers as salt_parsers
 
+ssh_parser = salt_parsers.SaltSSHOptionParser()
+all_opts = {str(opt.dest): opt for opt in ssh_parser._get_all_options() if opt.dest}
+
 CONFIG = {
     "roster_file": {
-        "default": None,
-        "help": "Path to the roster file for salt-ssh",
+        "default": all_opts["roster_file"].default,
+        "help": all_opts["roster_file"].help,
     },
     "minion_config": {
         "default": "/etc/salt/minion",
@@ -38,6 +41,10 @@ CLI_CONFIG = {
         "subcommands": ["minion"],
         "help": "The salt command to run on the ephemeral nodes",
     },
+    "salt_config_dir": {
+        "default": all_opts["config_dir"].default,
+        "help": all_opts["config_dir"].help,
+    },
     "salt_options": {
         "positional": True,
         "display_priority": 3,
@@ -56,14 +63,12 @@ CLI_CONFIG = {
 }
 
 SALT_SSH_OPTIONS = {}
-ssh_parser = salt_parsers.SaltSSHOptionParser()
-for opt in ssh_parser._get_all_options():
-    if not opt.dest:
-        continue
-    name = str(opt.dest)
+for name, opt in all_opts.items():
     if name in CLI_CONFIG:
         continue
     if name in SALT_SSH_OPTIONS:
+        continue
+    if name in ("config_dir",):
         continue
     SALT_SSH_OPTIONS[name] = dict(
         dest=opt.dest,

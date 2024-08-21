@@ -13,11 +13,14 @@ async def run_command(hub, name: str, command: str) -> str:
     target = hub.soluble.RUN[name].ssh_target
     roster = hub.soluble.RUN[name].roster_file
     escalate = hub.soluble.RUN[name].escalate
+    config_dir = hub.soluble.RUN[name].salt_config_dir
     options = " ".join(x.strip('"') for x in hub.soluble.RUN[name].salt_ssh_options)
     cmd = hub.lib.shutil.which("salt-ssh")
     assert cmd, "Could not find salt-ssh"
 
     full_command = f'{cmd} "{target}" --roster-file={roster} {command} -l {hub.OPT.pop_config.log_level} --log-file={hub.OPT.pop_config.log_file} --hard-crash {options}'
+    if config_dir:
+        full_command += f" --config-dir={config_dir}"
     if escalate:
         sudo = hub.lib.shutil.which("sudo")
         if sudo:
