@@ -54,6 +54,8 @@ CLI_CONFIG = {
         "subcommands": ["minion"],
     },
 }
+
+SALT_SSH_OPTIONS = {}
 ssh_parser = salt_parsers.SaltSSHOptionParser()
 for opt in ssh_parser._get_all_options():
     if not opt.dest:
@@ -61,7 +63,9 @@ for opt in ssh_parser._get_all_options():
     name = str(opt.dest)
     if name in CLI_CONFIG:
         continue
-    CLI_CONFIG[name] = dict(
+    if name in SALT_SSH_OPTIONS:
+        continue
+    SALT_SSH_OPTIONS[name] = dict(
         dest=opt.dest,
         default=opt.default,
         help=str(opt.help).replace("%", " "),
@@ -69,9 +73,11 @@ for opt in ssh_parser._get_all_options():
         choies=opt.choices,
         action=opt.action if "store" in opt.action else None,
         nargs=opt.nargs,
-        options=opt._short_opts + opt._long_opts,
-        group="Salt-SSH Options",
+        options=opt._long_opts + opt._short_opts,
+        group="Salt-SSH",
     )
+
+CLI_CONFIG.update(SALT_SSH_OPTIONS)
 
 SUBCOMMANDS = {
     "minion": {

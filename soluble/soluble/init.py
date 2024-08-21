@@ -12,7 +12,9 @@ def __init__(hub):
     hub.pop.sub.add(python_import="sys", sub=hub.lib)
     hub.pop.sub.add(python_import="uuid", sub=hub.lib)
     hub.pop.sub.add(python_import="yaml", sub=hub.lib)
-    hub.pop.sub.add(python_import="salt.utils.parsers", sub=hub.lib, subname="salt_parsers")
+    hub.pop.sub.add(
+        python_import="salt.utils.parsers", sub=hub.lib, subname="salt_parsers"
+    )
     hub.pop.sub.add(
         python_import="dict_tools.data", subname="ddata", sub=hub.lib, omit_class=False
     )
@@ -21,19 +23,25 @@ def __init__(hub):
 def cli(hub):
     hub.pop.config.load(["soluble"], cli="soluble")
     kwargs = dict(hub.OPT.soluble)
-    salt_ssh_opts = {}
-    
-    ssh_parser = hub.lib.salt_parsers.SaltSSHOptionParser()
-    for opt in ssh_parser._get_all_options():
-        if not opt.dest:
+    salt_ssh_opts = []
+
+    # Turn salt-ssh opts into a string
+    for name, opts in hub._dynamic["soluble"]["CLI_CONFIG"].items():
+        if opts.get("group", "").lower() != "salt-ssh":
             continue
-        name = str(opt.dest)
-        if name not in kwargs:
+
+        value = kwargs.pop(name, None)
+        if value is None:
             continue
-        if name in ("roster_file", ):
+
+        salt_ssh_opts.append(opts["options"][0])
+
+        # This is a flag
+        if isinstance(value, bool):
             continue
-        salt_ssh_opts[name] = kwargs.pop(name)
-    
+
+        salt_ssh_opts.append(str(value))
+
     kwargs["salt_ssh_options"] = salt_ssh_opts
 
     hub.pop.loop.create()
