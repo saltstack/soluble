@@ -1,13 +1,3 @@
-async def get_targets(hub, name: str) -> list[str]:
-    """Get the target minions from the salt-ssh test.ping output."""
-    output = await hub.soluble.ssh.run_command(name, "test.ping --out json")
-    try:
-        hosts = hub.lib.json.loads(output)
-    except hub.lib.json.decoder.JSONDecodeError:
-        hosts = {}
-    return list(hosts.keys())
-
-
 async def run_command(hub, name: str, command: str) -> dict[str, object]:
     """Run a salt-ssh command asynchronously, handle all prompts, and return the output."""
     target = hub.soluble.RUN[name].ssh_target
@@ -37,11 +27,14 @@ async def run_command(hub, name: str, command: str) -> dict[str, object]:
     # Wait for the process to complete and capture stdout at the end
     stdout, _ = await process.communicate()
 
+    # Report the output of the salt-ssh commands
     data = hub.lib.json.loads(stdout.decode("utf-8"))
     for target, running in data.items():
         if isinstance(running, list):
             for comment in running:
                 hub.log.error(comment)
+            continue
+        if not isinstance(running, dict):
             continue
         for state_name, state in running.items():
             if not isinstance(state, dict):

@@ -4,11 +4,11 @@ async def run(hub, name: str) -> int:
         # Run Setup
         await hub.soluble.minion.setup(name)
 
-        hub.log.info("Getting target minions...")
-        targets = await hub.soluble.ssh.get_targets(name)
-
         hub.log.info("Accepting minion key(s) on Salt master...")
-        await hub.soluble.master.accept_keys(name, targets)
+        await hub.soluble.master.accept_keys(name)
+
+        # Waiting for minion to be ready
+        await hub.lib.asyncio.sleep(30)
 
         hub.log.info("Running specified Salt command on ephemeral minions...")
         command = hub.soluble.RUN[name].salt_command

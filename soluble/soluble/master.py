@@ -1,32 +1,30 @@
-async def accept_keys(hub, name, targets: list[str]) -> int:
+async def accept_keys(hub, name: str) -> int:
     """Accept the ephemeral minion keys on the Salt master."""
     escalate = hub.soluble.RUN[name].escalate
+    config_dir = hub.soluble.RUN[name].salt_config_dir
     cmd = hub.soluble.RUN[name].salt_key_bin
     assert cmd, "Could not find salt-key, is this a salt-master?"
-    retcode = 0
-    for target in targets:
-        minion_id = await hub.soluble.minion.get_id(name, target)
-        command = f"{cmd} -a {minion_id} -y"
-        if escalate:
-            sudo = hub.lib.shutil.which("sudo")
-            if sudo:
-                command = f"{sudo} -E {command}"
 
-        process = await hub.lib.asyncio.create_subprocess_shell(
-            command,
-            stdout=hub.lib.asyncio.subprocess.PIPE,
-            stderr=hub.lib.asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = await process.communicate()
+    node_prefix = hub.soluble.RUN[name].node_prefix
 
-        # Log the stdout and stderr
-        hub.log.info(stdout.decode("utf-8"))
-        if process.returncode != 0:
-            hub.log.error(stderr.decode("utf-8"))
+    command = f"{cmd} -a '{node_prefix}*' -y"
+    if config_dir:
+        command += f" --config-dir={config_dir}"
+    if escalate:
+        sudo = hub.lib.shutil.which("sudo")
+        if sudo:
+            command = f"{sudo} -E {command}"
 
-        # Update the retcode if any command fails
-        retcode = retcode or process.returncode
+    process = await hub.lib.asyncio.create_subprocess_shell(
+        command,
+        stdout=hub.lib.asyncio.subprocess.PIPE,
+    )
 
+    stdout, _ = await process.communicate()
+    retcode = await process.wait()
+    if retcode != 0:
+        raise ChildProcessError(f"Failed to accept minion keys")
+    hub.log.error(stdout)
     return retcode
 
 
@@ -38,6 +36,9 @@ async def run_command(hub, name: str, salt_command: str) -> int:
 
     escalate = hub.soluble.RUN[name].escalate
     command = f"{cmd} '{node_prefix}*' {salt_command} {' '.join(salt_options)}"
+    config_dir = hub.soluble.RUN[name].salt_config_dir
+    if config_dir:
+        command += f" --config-dir={config_dir}"
     if escalate:
         command = f"sudo -E {command}"
 
