@@ -1,2 +1,2 @@
-pop>=17.0
+pop>=27.1.0
 salt-ssh
