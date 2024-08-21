@@ -1,2 +1,3 @@
 pop>=27.1.0
 salt-ssh
+importlib-metadata<5.0

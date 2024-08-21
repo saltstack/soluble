@@ -1,3 +1,5 @@
+import shutil
+
 import salt.utils.parsers as salt_parsers
 
 ssh_parser = salt_parsers.SaltSSHOptionParser()
@@ -28,6 +30,14 @@ CONFIG = {
         "default": all_opts["roster_file"].default,
         "help": all_opts["roster_file"].help,
     },
+    "salt_bin": {
+        "default": shutil.which("salt"),
+        "help": "Path to the salt command",
+    },
+    "salt_key_bin": {
+        "default": shutil.which("salt-key"),
+        "help": "Path to the salt-key command",
+    },
 }
 
 CLI_CONFIG = {
@@ -46,6 +56,12 @@ CLI_CONFIG = {
         "display_priority": 1,
         "subcommands": ["minion"],
         "help": "Target for the salt-ssh command. This is typically a minion ID, wildcard, or grain.",
+    },
+    "salt_bin": {
+        "subcommands": ["minion"],
+    },
+    "salt_key_bin": {
+        "subcommands": ["minion"],
     },
     "salt_command": {
         "positional": True,

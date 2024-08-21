@@ -1,8 +1,8 @@
 async def accept_keys(hub, name, targets: list[str]) -> int:
     """Accept the ephemeral minion keys on the Salt master."""
     escalate = hub.soluble.RUN[name].escalate
-    cmd = hub.lib.shutil.which("salt-key")
-    assert cmd, "Could not find salt-key"
+    cmd = hub.soluble.RUN[name].salt_key_bin
+    assert cmd, "Could not find salt-key, is this a salt-master?"
     retcode = 0
     for target in targets:
         minion_id = await hub.soluble.minion.get_id(name, target)
@@ -34,7 +34,7 @@ async def run_command(hub, name: str, salt_command: str) -> int:
     """Run a command on the Salt master, handling stdout, stderr, and error code."""
     salt_options = hub.soluble.RUN[name].salt_options
     node_prefix = hub.soluble.RUN[name].node_prefix
-    cmd = hub.lib.shutil.which("salt")
+    cmd = hub.soluble.RUN[name].salt_bin
 
     escalate = hub.soluble.RUN[name].escalate
     command = f"{cmd} '{node_prefix}*' {salt_command} {' '.join(salt_options)}"

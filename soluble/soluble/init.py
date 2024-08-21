@@ -18,6 +18,9 @@ def __init__(hub):
 
 
 def cli(hub):
+    """
+    Parse the config data and pass it to the actual runtime
+    """
     hub.pop.config.load(["soluble"], cli="soluble")
     kwargs = dict(hub.OPT.soluble)
     salt_ssh_opts = []
@@ -41,29 +44,22 @@ def cli(hub):
 
     kwargs["salt_ssh_options"] = salt_ssh_opts
 
-    hub.pop.loop.create()
-
-    coroutine = hub.soluble.init.run(**kwargs)
-    retcode = hub.pop.Loop.run_until_complete(coroutine)
-    hub.lib.sys.exit(retcode)
-
-
-async def run(hub, roster_file: str, **kwargs) -> int:
-    """
-    This is the entrypoint for the async code in your project
-    """
     if not hub.SUBPARSER:
         print(hub.args.parser.help())
         return 2
 
-    if not roster_file:
-        if hub.lib.os.getuid() == 0:
-            roster_file = "/etc/salt/roster"
-        else:
-            roster_file = hub.lib.os.path.expanduser("~/.salt/roster")
+    hub.pop.loop.create()
 
+    coroutine = hub.soluble.init.run(plugin=hub.SUBPARSER, **kwargs)
+    retcode = hub.pop.Loop.run_until_complete(coroutine)
+    hub.lib.sys.exit(retcode)
+
+
+async def run(hub, plugin: str = "minion", **kwargs) -> int:
+    """
+    This is the entrypoint for the project
+    """
     run_name = hub.lib.uuid.uuid4()
-    hub.soluble.RUN[run_name] = hub.lib.ddata.NamespaceDict(
-        roster_file=roster_file, **kwargs
-    )
-    return await hub.soluble[hub.SUBPARSER].run(run_name)
+    hub.soluble.RUN[run_name] = hub.lib.ddata.NamespaceDict(**kwargs)
+    await hub.soluble[plugin].run(run_name)
+    return run_name
