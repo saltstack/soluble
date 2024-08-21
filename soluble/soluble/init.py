@@ -16,6 +16,7 @@ def __init__(hub):
     hub.pop.sub.add(python_import="sys", sub=hub.lib)
     hub.pop.sub.add(python_import="uuid", sub=hub.lib)
     hub.pop.sub.add(python_import="yaml", sub=hub.lib)
+    hub.pop.sub.add(python_import="warnings", sub=hub.lib)
     hub.pop.sub.add(
         python_import="dict_tools.data", subname="ddata", sub=hub.lib, omit_class=False
     )
@@ -63,7 +64,7 @@ async def run(hub, plugin: str = "minion", **kwargs) -> int:
     """
     This is the entrypoint for the project
     """
-    run_name = hub.lib.uuid.uuid4()
+    run_name = str(hub.lib.uuid.uuid4())
     hub.soluble.RUN[run_name] = hub.lib.ddata.NamespaceDict(**kwargs)
     await hub.soluble[plugin].run(run_name)
     return run_name

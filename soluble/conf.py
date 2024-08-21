@@ -2,11 +2,13 @@ import shutil
 
 import salt.utils.parsers as salt_parsers
 
+
 ssh_parser = salt_parsers.SaltSSHOptionParser()
 all_opts = {
     str(opt.dest): opt
     for opt in ssh_parser._get_all_options()
-    if opt.dest and "log" not in opt.dest and "out" not in opt.dest
+    if opt.dest
+    and not any(key in opt.dest for key in ("log", "out", "crash", "version", "color"))
 }
 
 CONFIG = {

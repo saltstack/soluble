@@ -4,12 +4,6 @@ async def run(hub, name: str) -> int:
         # Run Setup
         await hub.soluble.minion.setup(name)
 
-        hub.log.info("Accepting minion key(s) on Salt master...")
-        await hub.soluble.master.accept_keys(name)
-
-        # Waiting for minion to be ready
-        await hub.lib.asyncio.sleep(30)
-
         hub.log.info("Running specified Salt command on ephemeral minions...")
         command = hub.soluble.RUN[name].salt_command
         command += " ".join(hub.soluble.RUN[name].salt_options)
@@ -21,7 +15,6 @@ async def run(hub, name: str) -> int:
             await hub.soluble.minion.teardown(
                 name,
             )
-
     return retcode
 
 
@@ -62,6 +55,19 @@ async def setup(hub, name: str):
     # Enable the service to start on boot
     await hub.soluble.ssh.run_command(name, "service.enabled name=salt-minion")
 
+    hub.log.info("Accepting ephemeral minion key(s) on Salt master...")
+    await hub.soluble.key.accept(name)
+
+    # Wait for the minion to be available
+    for _ in range(60):
+        hub.log.debug("Waiting for minions to be ready")
+        retcode = await hub.soluble.master.run_command(
+            name, "test.ping", capture_output=True
+        )
+        if retcode == 0:
+            hub.log.debug(f"Ephemeral minions are ready")
+            break
+
 
 async def teardown(hub, name: str):
     """Teardown the ephemeral minion using raw Salt execution modules."""
@@ -86,3 +92,6 @@ async def teardown(hub, name: str):
     await hub.soluble.ssh.run_command(
         name, "state.single file.absent name=/etc/salt/minion_id"
     )
+
+    hub.log.info("Destroy ephemeral minion key(s) on Salt master...")
+    await hub.soluble.key.destroy(name)

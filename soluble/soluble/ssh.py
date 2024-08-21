@@ -9,7 +9,7 @@ async def run_command(hub, name: str, command: str) -> dict[str, object]:
     cmd = hub.lib.shutil.which("salt-ssh")
     assert cmd, "Could not find salt-ssh"
 
-    full_command = f'{cmd} "{target}" --roster-file={roster} {command} --hard-crash {options} --out=json'
+    full_command = f'{cmd} "{target}" --roster-file={roster} {command} --log-level=quiet --hard-crash {options} --no-color --out=json'
     if config_dir:
         full_command += f" --config-dir={config_dir}"
     if escalate:
@@ -22,6 +22,7 @@ async def run_command(hub, name: str, command: str) -> dict[str, object]:
     process = await hub.lib.asyncio.create_subprocess_shell(
         full_command,
         stdout=hub.lib.asyncio.subprocess.PIPE,
+        stderr=hub.lib.asyncio.subprocess.PIPE,
     )
 
     # Wait for the process to complete and capture stdout at the end
