@@ -1,24 +1,26 @@
 async def run(hub, name: str) -> int:
-    # Run Setup
-    await hub.soluble.minion.setup(name)
+    retcode = 0
+    try:
+        # Run Setup
+        await hub.soluble.minion.setup(name)
 
-    hub.log.info("Getting target minions...")
-    targets = await hub.soluble.ssh.get_targets(name)
+        hub.log.info("Getting target minions...")
+        targets = await hub.soluble.ssh.get_targets(name)
 
-    hub.log.info("Accepting minion key(s) on Salt master...")
-    await hub.soluble.master.accept_keys(name, targets)
+        hub.log.info("Accepting minion key(s) on Salt master...")
+        await hub.soluble.master.accept_keys(name, targets)
 
-    hub.log.info("Running specified Salt command on ephemeral minions...")
-    command = hub.soluble.RUN[name].salt_command
-    command += " ".join(hub.soluble.RUN[name].salt_options)
-    retcode = await hub.soluble.master.run_command(name, command)
-
-    # Run Teardown
-    if not hub.soluble.RUN[name].bootstrap:
-        hub.log.info("Running teardown on target(s)...")
-        await hub.soluble.minion.teardown(
-            name,
-        )
+        hub.log.info("Running specified Salt command on ephemeral minions...")
+        command = hub.soluble.RUN[name].salt_command
+        command += " ".join(hub.soluble.RUN[name].salt_options)
+        retcode = await hub.soluble.master.run_command(name, command)
+    finally:
+        # Run Teardown
+        if not hub.soluble.RUN[name].bootstrap:
+            hub.log.info("Running teardown on target(s)...")
+            await hub.soluble.minion.teardown(
+                name,
+            )
 
     return retcode
 
@@ -27,27 +29,17 @@ async def setup(hub, name: str):
     """Setup the ephemeral minion using raw Salt execution modules."""
     config = hub.soluble.RUN[name]
 
-    # Load the minion config, modify it, and save it
-    try:
-        with open(config.minion_config) as f:
-            minion_config = hub.lib.yaml.safe_load(f) or {}
-    except FileNotFoundError:
-        minion_config = {}
+    # Copy the minion config to the target
+    minion_config = hub.lib.path.Path(config.minion_config)
 
-    # Dump the updated minion config back to a file
-    with hub.lib.tempfile.NamedTemporaryFile(
-        "w+", suffix="_config.yaml", delete=True
-    ) as cfg:
-        hub.lib.yaml.safe_dump(minion_config, cfg)
-
-        # Copy the minion config to the target
+    if minion_config.exists():
         hub.log.info("Copying minion configuration to target(s)...")
         await hub.soluble.ssh.run_command(
             name,
-            f"state.single file.managed source=file://{cfg.name} name=/etc/salt/minion",
+            f"state.single file.managed source=file://{config.minion_config} name=/etc/salt/minion",
         )
 
-    # Create the minion config file
+    # Create the minion id file
     node_prefix = hub.soluble.RUN[name].node_prefix
     hub.log.info("Setting minion ids")
     await hub.soluble.ssh.run_command(

@@ -5,6 +5,10 @@ def __init__(hub):
     hub.pop.sub.add(python_import="json", sub=hub.lib)
     hub.pop.sub.add(python_import="os", sub=hub.lib)
     hub.pop.sub.add(python_import="pathlib", sub=hub.lib, subname="path")
+    hub.pop.sub.add(
+        python_import="pprint",
+        sub=hub.lib,
+    )
     hub.pop.sub.add(python_import="shutil", sub=hub.lib)
     hub.pop.sub.add(python_import="salt", sub=hub.lib)
     hub.pop.sub.add(python_import="socket", sub=hub.lib)
