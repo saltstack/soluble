@@ -1,21 +1,13 @@
 import salt.utils.parsers as salt_parsers
 
 ssh_parser = salt_parsers.SaltSSHOptionParser()
-all_opts = {str(opt.dest): opt for opt in ssh_parser._get_all_options() if opt.dest}
+all_opts = {
+    str(opt.dest): opt
+    for opt in ssh_parser._get_all_options()
+    if opt.dest and "log" not in opt.dest
+}
 
 CONFIG = {
-    "roster_file": {
-        "default": all_opts["roster_file"].default,
-        "help": all_opts["roster_file"].help,
-    },
-    "minion_config": {
-        "default": "/etc/salt/minion",
-        "help": "Path to the minion configuration template. Defaults to '/etc/salt/minion' or the master's default minion config",
-    },
-    "node_prefix": {
-        "default": "ephemeral-node-",
-        "help": "A prefix to add to the ephemeral minion id",
-    },
     "bootstrap": {
         "default": False,
         "help": "Don't tear down the minion",
@@ -24,11 +16,31 @@ CONFIG = {
         "default": False,
         "help": "Run salt commands as root",
     },
+    "minion_config": {
+        "default": all_opts["config_dir"].default + "/minion",
+        "help": "Path to the minion configuration template. Defaults to '/etc/salt/minion' or the master's default minion config",
+    },
+    "node_prefix": {
+        "default": "ephemeral-node-",
+        "help": "A prefix to add to the ephemeral minion id",
+    },
+    "roster_file": {
+        "default": all_opts["roster_file"].default,
+        "help": all_opts["roster_file"].help,
+    },
 }
 
 CLI_CONFIG = {
-    "roster_file": {"options": ["-R"]},
+    "bootstrap": {
+        "action": "store_true",
+        "subcommands": ["minion"],
+    },
+    "escalate": {
+        "action": "store_true",
+        "subcommands": ["minion"],
+    },
     "minion_config": {"subcommands": ["minion"]},
+    "roster_file": {"options": ["-R"]},
     "ssh_target": {
         "positional": True,
         "display_priority": 1,
@@ -43,7 +55,7 @@ CLI_CONFIG = {
     },
     "salt_config_dir": {
         "default": all_opts["config_dir"].default,
-        "help": all_opts["config_dir"].help,
+        "help": all_opts["config_dir"].help.replace("%", ""),
     },
     "salt_options": {
         "positional": True,
@@ -51,14 +63,6 @@ CLI_CONFIG = {
         "nargs": "...",
         "subcommands": ["minion"],
         "help": "Additional options to be passed to the salt command",
-    },
-    "bootstrap": {
-        "action": "store_true",
-        "subcommands": ["minion"],
-    },
-    "escalate": {
-        "action": "store_true",
-        "subcommands": ["minion"],
     },
 }
 
