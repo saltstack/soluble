@@ -90,10 +90,8 @@ CLI_CONFIG.update(SALT_SSH_OPTIONS)
 
 SUBCOMMANDS = {
     "minion": {
-        "help": "",
-        "desc": "",
+        "help": "Create an ephemeral minion",
     }
 }
-
 
 DYNE = {"soluble": ["soluble"]}

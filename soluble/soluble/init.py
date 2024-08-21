@@ -13,9 +13,6 @@ def __init__(hub):
     hub.pop.sub.add(python_import="uuid", sub=hub.lib)
     hub.pop.sub.add(python_import="yaml", sub=hub.lib)
     hub.pop.sub.add(
-        python_import="salt.utils.parsers", sub=hub.lib, subname="salt_parsers"
-    )
-    hub.pop.sub.add(
         python_import="dict_tools.data", subname="ddata", sub=hub.lib, omit_class=False
     )
 
