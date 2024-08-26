@@ -24,6 +24,10 @@ CONFIG = {
         "default": all_opts["config_dir"].default + "/minion",
         "help": "Path to the minion configuration template. Defaults to '/etc/salt/minion' or the master's default minion config",
     },
+    "salt_config_dir": {
+        "default": all_opts["config_dir"].default,
+        "help": all_opts["config_dir"].help.replace("%", ""),
+    },
     "node_prefix": {
         "default": "ephemeral-node-",
         "help": "A prefix to add to the ephemeral minion id",
@@ -71,10 +75,7 @@ CLI_CONFIG = {
         "subcommands": ["minion"],
         "help": "The salt command to run on the ephemeral nodes",
     },
-    "salt_config_dir": {
-        "default": all_opts["config_dir"].default,
-        "help": all_opts["config_dir"].help.replace("%", ""),
-    },
+    "salt_config_dir": {},
     "salt_options": {
         "positional": True,
         "display_priority": 3,

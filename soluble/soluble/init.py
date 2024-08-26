@@ -1,3 +1,6 @@
+from soluble.conf import CLI_CONFIG
+
+
 def __init__(hub):
     hub.soluble.RUN = {}
     hub.pop.sub.add(dyne_name="lib")
@@ -30,7 +33,7 @@ def cli(hub):
     salt_ssh_opts = []
 
     # Turn salt-ssh opts into a string
-    for name, opts in hub._dynamic["soluble"]["CLI_CONFIG"].items():
+    for name, opts in CLI_CONFIG.items():
         if opts.get("group", "").lower() != "salt-ssh":
             continue
 
