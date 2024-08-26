@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "soluble"
-version = "1.0.0"
+version = "2.0.0"
 description = "Set up a dissolvable, ephemeral salt minion using salt-ssh"
 readme = "README.rst"
 url = "https://github.com/saltstack/soluble"
@@ -32,9 +32,6 @@ dependencies = [
   "importlib-metadata<5.0",
 ]
 packages = ["soluble/**"]
-
-[tool.hatch.build.targets.sdist]
-include = ["soluble/**"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["soluble"]
