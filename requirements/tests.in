@@ -1,6 +1,0 @@
-file:.
-asynctest
-mock
-pytest>=6.2.5
-pytest-asyncio
-pytest-pop>=8.0
