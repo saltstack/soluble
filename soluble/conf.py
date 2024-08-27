@@ -8,33 +8,33 @@ all_opts = {
     str(opt.dest): opt
     for opt in ssh_parser._get_all_options()
     if opt.dest
-    and not any(key in opt.dest for key in ("log", "out", "crash", "version", "color"))
+    and not any(key in opt.dest for key in ("log", "out", "crash", "version", "color", "python2"))
 }
 
 CONFIG = {
     "bootstrap": {
         "default": False,
-        "help": "Don't tear down the minion",
+        "help": "Don't tear down the soluble agent",
     },
     "escalate": {
         "default": False,
         "help": "Run salt commands as root",
     },
-    "minion_config": {
-        "default": all_opts["config_dir"].default + "/minion",
-        "help": "Path to the minion configuration template. Defaults to '/etc/salt/minion' or the master's default minion config",
-    },
-    "salt_config_dir": {
-        "default": all_opts["config_dir"].default,
-        "help": all_opts["config_dir"].help.replace("%", ""),
-    },
     "node_prefix": {
         "default": "ephemeral-node-",
         "help": "A prefix to add to the ephemeral minion id",
     },
+    "minion_config": {
+        "default": all_opts["config_dir"].default + "/minion",
+        "help": "Path to the minion configuration template. Defaults to '/etc/salt/minion' or the master's default minion config",
+    },
     "roster_file": {
         "default": all_opts["roster_file"].default,
         "help": all_opts["roster_file"].help,
+    },
+    "salt_config_dir": {
+        "default": all_opts["config_dir"].default,
+        "help": all_opts["config_dir"].help.replace("%", ""),
     },
     "salt_bin": {
         "default": shutil.which("salt"),
