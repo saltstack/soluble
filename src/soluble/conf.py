@@ -1,5 +1,3 @@
-import shutil
-
 import salt.utils.parsers as salt_parsers
 
 
@@ -24,10 +22,6 @@ CONFIG = {
         "default": "ephemeral-node-",
         "help": "A prefix to add to the ephemeral minion id",
     },
-    "minion_config": {
-        "default": all_opts["config_dir"].default + "/minion",
-        "help": "Path to the minion configuration template. Defaults to '/etc/salt/minion' or the master's default minion config",
-    },
     "roster_file": {
         "default": all_opts["roster_file"].default,
         "help": all_opts["roster_file"].help,
@@ -36,53 +30,26 @@ CONFIG = {
         "default": all_opts["config_dir"].default,
         "help": all_opts["config_dir"].help.replace("%", ""),
     },
-    "salt_bin": {
-        "default": shutil.which("salt"),
-        "help": "Path to the salt command",
-    },
-    "salt_key_bin": {
-        "default": shutil.which("salt-key"),
-        "help": "Path to the salt-key command",
-    },
+
 }
 
 CLI_CONFIG = {
     "bootstrap": {
         "action": "store_true",
-        "subcommands": ["minion"],
+        "subcommands": ["_global_"],
     },
     "escalate": {
         "action": "store_true",
-        "subcommands": ["minion"],
+        "subcommands": ["_global_"],
     },
-    "minion_config": {"subcommands": ["minion"]},
     "roster_file": {"options": ["-R"]},
     "ssh_target": {
         "positional": True,
-        "display_priority": 1,
+        "display_priority": 0,
         "subcommands": ["minion"],
         "help": "Target for the salt-ssh command. This is typically a minion ID, wildcard, or grain.",
     },
-    "salt_bin": {
-        "subcommands": ["minion"],
-    },
-    "salt_key_bin": {
-        "subcommands": ["minion"],
-    },
-    "salt_command": {
-        "positional": True,
-        "display_priority": 2,
-        "subcommands": ["minion"],
-        "help": "The salt command to run on the ephemeral nodes",
-    },
     "salt_config_dir": {},
-    "salt_options": {
-        "positional": True,
-        "display_priority": 3,
-        "nargs": "...",
-        "subcommands": ["minion"],
-        "help": "Additional options to be passed to the salt command",
-    },
 }
 
 SALT_SSH_OPTIONS = {}
@@ -107,10 +74,6 @@ for name, opt in all_opts.items():
 
 CLI_CONFIG.update(SALT_SSH_OPTIONS)
 
-SUBCOMMANDS = {
-    "minion": {
-        "help": "Create an ephemeral minion",
-    }
-}
+SUBCOMMANDS = {}
 
 DYNE = {"soluble": ["soluble"], "salt": ["salt"]}
