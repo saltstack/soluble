@@ -31,10 +31,9 @@ dependencies = [
   "salt-ssh",
   "importlib-metadata<5.0",
 ]
-packages = ["src/soluble_core/**", "src/soluble_minion/**"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/soluble_core", "src/soluble_minion"]
+packages = ["src/soluble_core", "src/soluble_minion", "src/soluble_master"]
 
 [project.optional-dependencies]
 test = [
