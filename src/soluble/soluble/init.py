@@ -62,19 +62,19 @@ def cli(hub):
     retcode = hub.pop.Loop.run_until_complete(coroutine)
     hub.lib.sys.exit(retcode)
 
-async def setup(hub, name:str):
+
+async def setup(hub, name: str):
     ...
-    
-    
-async def run(hub, plugin: str = "minion", run_name:str = None, **kwargs) -> int:
+
+
+async def run(hub, plugin: str = "minion", run_name: str = None, **kwargs) -> int:
     """
     Any valid "soluble" plugin must have a "setup", "run", and "teardown" function.
     """
     if run_name is None:
         run_name = str(hub.lib.uuid.uuid4())
     hub.soluble.RUN[run_name] = hub.lib.ddata.NamespaceDict(**kwargs)
-    
-    
+
     retcode = 0
     try:
         hub.log.info("Running setup on target(s)...")
@@ -83,10 +83,12 @@ async def run(hub, plugin: str = "minion", run_name:str = None, **kwargs) -> int
     finally:
         if not hub.soluble.RUN[run_name].bootstrap:
             hub.log.info("Running teardown on target(s)...")
-            await hub.soluble[plugin].teardown(run_name,)
-    
+            await hub.soluble[plugin].teardown(
+                run_name,
+            )
+
     return retcode
 
 
-async def teardown(hub, name:str):
+async def teardown(hub, name: str):
     ...

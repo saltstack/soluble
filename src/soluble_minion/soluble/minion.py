@@ -31,9 +31,7 @@ async def setup(hub, name: str):
 
     # Install Salt on the target
     hub.log.info("Installing Salt on target(s)...")
-    await hub.salt.ssh.run_command(
-        name, "state.single pkg.installed name=salt-minion"
-    )
+    await hub.salt.ssh.run_command(name, "state.single pkg.installed name=salt-minion")
 
     # Start the Salt minion service
     hub.log.info("Starting salt-minion service on target(s)...")
@@ -65,9 +63,7 @@ async def teardown(hub, name: str):
     await hub.salt.ssh.run_command(
         name, "state.single service.disabled name=salt-minion"
     )
-    await hub.salt.ssh.run_command(
-        name, "state.single service.dead name=salt-minion"
-    )
+    await hub.salt.ssh.run_command(name, "state.single service.dead name=salt-minion")
 
     # Uninstall Salt from the target
     hub.log.info("Uninstalling Salt from target(s)...")
