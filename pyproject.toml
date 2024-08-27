@@ -33,7 +33,11 @@ dependencies = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/soluble_core", "src/soluble_minion", "src/soluble_master"]
+packages = [
+  "src/soluble",
+  "src/soluble_master",
+  "src/soluble_minion",
+]
 
 [project.optional-dependencies]
 test = [
