@@ -1,5 +1,9 @@
 async def setup(hub, name: str):
     """Setup the ephemeral master using raw Salt execution modules."""
+    # TODO currently this requires a master to already be available to the ssh-target
+    # In order for this to start a master from scratch, we need to start a master on the local host
+    # And copy a minion config that points the salt-ssh targets back to the host running soluble
+    # This is just a temporary master so we can get SSH started
     config = hub.soluble.RUN[name]
 
     # Copy the master config to the target
