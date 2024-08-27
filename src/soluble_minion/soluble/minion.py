@@ -1,11 +1,3 @@
-async def run(hub, name: str) -> int:
-    hub.log.info("Running specified Salt command on ephemeral minions...")
-    command = hub.soluble.RUN[name].salt_command
-    command += " ".join(hub.soluble.RUN[name].salt_options)
-    retcode = await hub.salt.master.run_command(name, command)
-    return retcode
-
-
 async def setup(hub, name: str):
     """Setup the ephemeral minion using raw Salt execution modules."""
     config = hub.soluble.RUN[name]
@@ -54,6 +46,17 @@ async def setup(hub, name: str):
         if retcode == 0:
             hub.log.debug(f"Ephemeral minions are ready")
             break
+
+
+async def run(hub, name: str) -> int:
+    """
+    Run a salt command on an ephemeral minion
+    """
+    hub.log.info("Running specified Salt command on ephemeral minions...")
+    command = hub.soluble.RUN[name].salt_command
+    command += " ".join(hub.soluble.RUN[name].salt_options)
+    retcode = await hub.salt.master.run_command(name, command)
+    return retcode
 
 
 async def teardown(hub, name: str):

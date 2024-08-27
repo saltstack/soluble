@@ -92,6 +92,6 @@ for name, opt in all_opts.items():
 
 CLI_CONFIG.update(SALT_SSH_OPTIONS)
 
-SUBCOMMANDS = {}
+SUBCOMMANDS = {"init": {"help": "Test the roster with a simple ping"}}
 
 DYNE = {"soluble": ["soluble"], "salt": ["salt"]}

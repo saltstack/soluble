@@ -1,4 +1,6 @@
-async def run_command(hub, name: str, command: str) -> dict[str, object]:
+async def run_command(
+    hub, name: str, command: str, *, capture_output: bool = True
+) -> dict[str, object]:
     """Run a salt-ssh command asynchronously, handle all prompts, and return the output."""
     target = hub.soluble.RUN[name].ssh_target
     roster = hub.soluble.RUN[name].roster_file
@@ -9,7 +11,9 @@ async def run_command(hub, name: str, command: str) -> dict[str, object]:
     cmd = hub.lib.shutil.which("salt-ssh")
     assert cmd, "Could not find salt-ssh"
 
-    full_command = f'{cmd} "{target}" --roster-file={roster} {command} --log-level=quiet --hard-crash {options} --no-color --out=json'
+    full_command = f'{cmd} "{target}" --roster-file={roster} {command} --log-level=quiet --hard-crash {options}'
+    if capture_output:
+        full_command += " --no-color --out=json"
     if config_dir:
         full_command += f" --config-dir={config_dir}"
     if escalate:
@@ -19,14 +23,26 @@ async def run_command(hub, name: str, command: str) -> dict[str, object]:
 
     hub.log.info(f"Running salt-ssh command: {full_command}")
 
+    if capture_output:
+        stdout = hub.lib.asyncio.subprocess.PIPE
+    else:
+        stdout = None
+
     process = await hub.lib.asyncio.create_subprocess_shell(
         full_command,
-        stdout=hub.lib.asyncio.subprocess.PIPE,
+        stdout=stdout,
         stderr=hub.lib.asyncio.subprocess.PIPE,
     )
 
     # Wait for the process to complete and capture stdout at the end
     stdout, _ = await process.communicate()
+    returncode = await process.wait()
+
+    if returncode != 0:
+        raise ChildProcessError(f"Command failed: {full_command}")
+
+    if not capture_output:
+        return
 
     # Report the output of the salt-ssh commands
     data = hub.lib.json.loads(stdout.decode("utf-8"))
@@ -49,9 +65,5 @@ async def run_command(hub, name: str, command: str) -> dict[str, object]:
 
             if state["changes"]:
                 hub.log.debug(target + ":" + hub.lib.pprint.pformat(state["changes"]))
-
-    returncode = await process.wait()
-    if returncode != 0:
-        raise ChildProcessError(f"Command failed: {full_command}")
 
     return data

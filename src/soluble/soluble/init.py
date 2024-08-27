@@ -30,13 +30,15 @@ def cli(hub):
     """
     Parse the config data and pass it to the actual runtime
     """
-    soluble_plugins = list(hub.soluble._loaded.keys() - {"init"})
+    soluble_plugins = list(hub.soluble._loaded.keys())
 
     # Dynamically add ssh_target to every subcommand
     CLI_CONFIG["ssh_target"]["subcommands"] = soluble_plugins
 
     # Dynamically create a subcommand for every soluble plugin
     for plugin in soluble_plugins:
+        if plugin in SUBCOMMANDS:
+            continue
         SUBCOMMANDS[plugin] = {"help": f"Create an ephemeral {plugin}"}
 
     hub.pop.config.load(["soluble"], cli="soluble")
@@ -68,16 +70,12 @@ def cli(hub):
 
     hub.pop.loop.create()
 
-    coroutine = hub.soluble.init.run(plugin=hub.SUBPARSER, **kwargs)
+    coroutine = hub.soluble.init.apply(plugin=hub.SUBPARSER, **kwargs)
     retcode = hub.pop.Loop.run_until_complete(coroutine)
     hub.lib.sys.exit(retcode)
 
 
-async def setup(hub, name: str):
-    ...
-
-
-async def run(hub, plugin: str = "minion", run_name: str = None, **kwargs) -> int:
+async def apply(hub, plugin: str = "minion", run_name: str = None, **kwargs) -> int:
     """
     Any valid "soluble" plugin must have a "setup", "run", and "teardown" function.
     """
@@ -100,5 +98,29 @@ async def run(hub, plugin: str = "minion", run_name: str = None, **kwargs) -> in
     return retcode
 
 
+# Boilerplate code for creating a soluble plugin
+
+
+async def setup(hub, name: str):
+    """This is where a soluble plugin uses salt-ssh to prepare the roster targets"""
+    hub.log.info("Soluble setup")
+    await hub.salt.ssh.run_command(
+        name,
+        f"test.ping",
+    )
+
+
+async def run(hub, name: str) -> int:
+    """This is where a soluble plugin runs its primary function"""
+    hub.log.info("Soluble run")
+    await hub.salt.ssh.run_command(name, f"test.ping", capture_output=False)
+    return 0
+
+
 async def teardown(hub, name: str):
-    ...
+    """This is where a soluble function undoes everything from the setup process"""
+    hub.log.info("Soluble teardown")
+    await hub.salt.ssh.run_command(
+        name,
+        f"test.ping",
+    )
