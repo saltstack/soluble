@@ -58,8 +58,7 @@ CLI_CONFIG = {
     "ssh_target": {
         "positional": True,
         "display_priority": 0,
-        # TODO only for subcommands, not for the main command
-        "subcommands": ["minion"],
+        "subcommands": [],
         "help": "Target for the salt-ssh command. This is typically a minion ID, wildcard, or grain.",
     },
     "salt_config_dir": {},

@@ -25,7 +25,4 @@ CLI_CONFIG = {
     },
 }
 
-
-SUBCOMMANDS = {"minion": {"help": "Create an ephemeral minion", "dyne": "soluble"}}
-
 DYNE = {"soluble": ["soluble"]}

@@ -1,4 +1,5 @@
 from soluble.conf import CLI_CONFIG
+from soluble.conf import SUBCOMMANDS
 
 
 def __init__(hub):
@@ -29,6 +30,15 @@ def cli(hub):
     """
     Parse the config data and pass it to the actual runtime
     """
+    soluble_plugins = list(hub.soluble._loaded.keys() - {"init"})
+
+    # Dynamically add ssh_target to every subcommand
+    CLI_CONFIG["ssh_target"]["subcommands"] = soluble_plugins
+
+    # Dynamically create a subcommand for every soluble plugin
+    for plugin in soluble_plugins:
+        SUBCOMMANDS[plugin] = {"help": f"Create an ephemeral {plugin}"}
+
     hub.pop.config.load(["soluble"], cli="soluble")
     kwargs = dict(hub.OPT.soluble)
     salt_ssh_opts = []
