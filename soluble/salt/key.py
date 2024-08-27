@@ -3,12 +3,12 @@ from typing import Literal
 
 async def accept(hub, name: str) -> int:
     """Accept the ephemeral minion keys on the Salt master."""
-    return await hub.soluble.key.command(name, action="-a")
+    return await hub.salt.key.command(name, action="-a")
 
 
 async def destroy(hub, name: str) -> int:
     """Destroy the ephemeral minion keys on the Salt master."""
-    return await hub.soluble.key.command(name, action="-d")
+    return await hub.salt.key.command(name, action="-d")
 
 
 async def command(hub, name: str, action: Literal["-a", "-d"]):

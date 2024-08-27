@@ -113,4 +113,4 @@ SUBCOMMANDS = {
     }
 }
 
-DYNE = {"soluble": ["soluble"]}
+DYNE = {"soluble": ["soluble"], "salt": ["salt"]}
