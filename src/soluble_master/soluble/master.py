@@ -25,9 +25,6 @@ async def setup(hub, name: str):
     # Enable the service to start on boot
     await hub.salt.ssh.run_command(name, "service.enabled name=salt-master")
 
-    hub.log.info("Accepting ephemeral master key(s) on Salt master...")
-    await hub.salt.key.accept(name)
-
 
 async def run(hub, name: str) -> int:
     """
@@ -60,9 +57,3 @@ async def teardown(hub, name: str):
     await hub.salt.ssh.run_command(
         name, "state.single file.absent name=/etc/salt/master"
     )
-    await hub.salt.ssh.run_command(
-        name, "state.single file.absent name=/etc/salt/master_id"
-    )
-
-    hub.log.info("Destroy ephemeral master key(s) on Salt master...")
-    await hub.salt.key.destroy(name)
