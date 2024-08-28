@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "soluble"
 version = "3.0.0"
 description = "Set up a dissolvable, ephemeral salt minion using salt-ssh"
-readme = "README.rst"
+readme = "README.md"
 url = "https://github.com/saltstack/soluble"
 authors = [
     {name = "Tyler Levy Conde", email = "tyler.levy-conde@broadcomm.com"},
