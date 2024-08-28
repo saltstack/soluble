@@ -2,7 +2,7 @@ import contextlib
 
 
 def __init__(hub):
-    hub.test.TARGETS = {}
+    hub.test.ROSTER = {}
 
 
 def next_free_port(hub, host, port: int = 2222) -> int:
@@ -22,12 +22,11 @@ def next_free_port(hub, host, port: int = 2222) -> int:
     return port
 
 
-async def create_ssh_target(
-    hub, host: str, username: str = "user", password: str = "pass"
-):
+async def create(hub, username: str = "user", password: str = "pass"):
+    host = "localhost"
     client = hub.lib.docker.from_env()
-    port = hub.test.container.next_free_port(host)
-    target_name = f"soluble_test_{hub.lib.uuid.uuid4()}"
+    port = hub.test.container.next_free_port("localhost")
+    target_name = f"soluble_agent_{hub.lib.uuid.uuid4()}"
     pugid = "0" if username == "root" else "1000"
 
     container = client.containers.run(
@@ -79,7 +78,7 @@ async def create_ssh_target(
         container.remove()
         raise RuntimeError("Could not connect to container")
 
-    hub.test.TARGETS[target_name] = {
+    hub.test.ROSTER[target_name] = {
         "name": target_name,
         "port": port,
         "username": username,
@@ -87,7 +86,7 @@ async def create_ssh_target(
         "container": container,
     }
 
-    return hub.test.TARGETS[target_name]
+    return hub.test.ROSTER[target_name]
 
 
 @contextlib.contextmanager
@@ -95,7 +94,7 @@ def roster(hub):
     """
     Return roster file for all created containers
     """
-    roster = hub.test.TARGETS
+    roster = hub.test.ROSTER
     with hub.lib.tempfile.NamedTemporaryFile(suffix=".yaml") as fh:
         hub.lib.yaml.safe_dump(roster, fh)
         yield fh.name
