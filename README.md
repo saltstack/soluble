@@ -177,6 +177,13 @@ There are three basic soluble plugins: `init`, `minion`, and `master`.
 
 - **Soluble Master Example:**
 
+  Running the soluble `master` plugin requires you to install `soluble` with the `master` extras
+  if you aren't running the command from a salt master:
+
+  ```bash
+  pip install soluble[master]
+  ```
+
   This will spin up a master on the roster targets until you hit CTRL-C.
 
   ```bash

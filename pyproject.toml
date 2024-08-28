@@ -42,10 +42,22 @@ packages = [
 [project.optional-dependencies]
 test = [
   "asynctest",
+  "asyncssh",
+  "cryptography>=39.0.1,<42.0.0",
+  "docker",
   "mock",
+  "pidfile>=0.1.1",
+  "psutil>=5.6.3",
   "pytest>=6.2.5",
   "pytest-asyncio",
-  "pytest-pop>=8.0",
+  "pytest-httpserver",
+  "pytest-pop>=11.0.0",
+  "pytest-tempdir",
+  "salt",
+]
+
+master = [
+  "salt",
 ]
 
 # Specify console scripts
