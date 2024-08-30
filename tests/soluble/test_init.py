@@ -7,7 +7,5 @@ def test_help(hub):
 
 
 async def test_cli(hub, salt_master):
-    print("creating container")
     await hub.test.container.create()
-    print("running command")
     await hub.test.cmd.run("init")

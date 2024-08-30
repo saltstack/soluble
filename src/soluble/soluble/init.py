@@ -114,14 +114,14 @@ async def setup(hub, name: str):
     hub.log.info("Soluble setup")
     await hub.salt.ssh.run_command(
         name,
-        f"test.ping",
+        f"-H",
     )
 
 
 async def run(hub, name: str) -> int:
     """This is where a soluble plugin runs its primary function"""
     hub.log.info("Soluble run")
-    await hub.salt.ssh.run_command(name, f"test.ping", capture_output=False)
+    await hub.salt.ssh.run_command(name, f"grains.items", capture_output=False)
     return 0
 
 

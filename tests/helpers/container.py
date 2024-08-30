@@ -23,46 +23,41 @@ def next_free_port(hub, host, port: int = 2222) -> int:
     return port
 
 
-async def create(hub, username: str = "user", password: str = "pass"):
+async def create(hub, username: str = "root", password: str = "pass"):
     host = "localhost"
     client = hub.lib.docker.from_env()
     port = hub.test.container.next_free_port("localhost")
     target_name = f"soluble_agent_{hub.lib.uuid.uuid4()}"
-    pugid = "0" if username == "root" else "1000"
 
     container = client.containers.run(
-        "linuxserver/openssh-server:latest",
-        command=["/bin/sh", "-c", "while true; do sleep 1; done"],
+        "python:3.10-slim",
+        command=[
+            "/bin/sh",
+            "-c",
+            f"""
+        apt-get update && \
+        apt-get install -y openssh-server && \
+        echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+        service ssh restart && \
+        echo 'root:{password}' | chpasswd && \
+        while true; do sleep 1; done
+    """,
+        ],
         detach=True,
-        ports={"2222/tcp": port},
+        ports={"22/tcp": port},
         hostname=target_name,
         network="bridge",
         environment={
-            "PUID": pugid,
-            "PGID": pugid,
-            "TZ": "Etc/UTC",
-            "SUDO_ACCESS": "true",
-            "PASSWORD_ACCESS": "true",
-            "USER_NAME": username,
+            "user": username,
             "USER_PASSWORD": password,
         },
     )
-
-    # Enable SSH Tunneling
-    container.exec_run(
-        cmd="sed -i 's/^AllowTcpForwarding no/AllowTcpForwarding yes/' /etc/ssh/sshd_config",
-        privileged=True,
-        detach=True,
-    )
-    if username == "root":
-        container.exec_run(
-            cmd="sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config",
-            privileged=True,
-            detach=True,
-        )
+    print(f"Created container: {container.id}")
 
     # Wait for SSH service to be available
+    print(f"Trying to connect to container: {container.id}", end="")
     for _ in range(60):
+        print(".", end="")
         try:
             async with hub.lib.asyncssh.connect(
                 host=host,
@@ -78,13 +73,15 @@ async def create(hub, username: str = "user", password: str = "pass"):
         container.stop()
         container.remove()
         raise RuntimeError("Could not connect to container")
+    print("\nSuccess!")
 
     hub.test.ROSTER[target_name] = container
     hub.test.ROSTER[target_name] = {
         "host": "localhost",
         "port": port,
-        "username": username,
-        "password": password,
+        "user": username,
+        "passwd": password,
+        "minion_opts": {"master": "localhost"},
     }
 
     return hub.test.ROSTER[target_name]

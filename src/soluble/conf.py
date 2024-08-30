@@ -9,8 +9,7 @@ all_opts = {
     for opt in ssh_parser._get_all_options()
     if opt.dest
     and not any(
-        key in opt.dest
-        for key in ("log", "out", "crash", "version", "color", "python2")
+        key in opt.dest for key in ("log", "out", "version", "color", "python2")
     )
 }
 
