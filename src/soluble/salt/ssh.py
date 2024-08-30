@@ -11,7 +11,7 @@ async def run_command(
     cmd = hub.lib.shutil.which("salt-ssh")
     assert cmd, "Could not find salt-ssh"
 
-    full_command = f'{cmd} "{target}" --roster-file={roster} {command} --log-level=quiet --hard-crash {options}'
+    full_command = f"{cmd} '{target}' --roster-file={roster} {command} --log-level=quiet --hard-crash {options}"
     if capture_output:
         full_command += " --no-color --out=json"
     if config_dir:

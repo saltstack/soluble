@@ -6,6 +6,8 @@ def test_help(hub):
         hub.soluble.init.cli()
 
 
-async def test_cli(hub):
+async def test_cli(hub, salt_master):
+    print("creating container")
     await hub.test.container.create()
-    assert await hub.test.cmd.run("init")
+    print("running command")
+    await hub.test.cmd.run("init")

@@ -16,6 +16,7 @@ def __init__(hub):
     hub.pop.sub.add(python_import="salt", sub=hub.lib)
     hub.pop.sub.add(python_import="socket", sub=hub.lib)
     hub.pop.sub.add(python_import="tempfile", sub=hub.lib)
+    hub.pop.sub.add(python_import="typing", sub=hub.lib)
     hub.pop.sub.add(python_import="shlex", sub=hub.lib)
     hub.pop.sub.add(python_import="sys", sub=hub.lib)
     hub.pop.sub.add(python_import="uuid", sub=hub.lib)
@@ -54,13 +55,20 @@ def cli(hub):
         if value is None:
             continue
 
-        salt_ssh_opts.append(opts["options"][0])
+        if isinstance(value, tuple):
+            for v in value:
+                salt_ssh_opts.append(opts["options"][0])
+                if " " in v:
+                    v = f"'{v}'"
+                salt_ssh_opts.append(str(v))
+        else:
+            salt_ssh_opts.append(opts["options"][0])
 
-        # This is a flag
-        if isinstance(value, bool):
-            continue
+            # This is a flag
+            if isinstance(value, bool):
+                continue
 
-        salt_ssh_opts.append(str(value))
+            salt_ssh_opts.append(str(value))
 
     kwargs["salt_ssh_options"] = salt_ssh_opts
 

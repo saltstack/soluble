@@ -3,6 +3,7 @@ import contextlib
 
 def __init__(hub):
     hub.test.ROSTER = {}
+    hub.test.CONTAINER = {}
 
 
 def next_free_port(hub, host, port: int = 2222) -> int:
@@ -78,12 +79,12 @@ async def create(hub, username: str = "user", password: str = "pass"):
         container.remove()
         raise RuntimeError("Could not connect to container")
 
+    hub.test.ROSTER[target_name] = container
     hub.test.ROSTER[target_name] = {
-        "name": target_name,
+        "host": "localhost",
         "port": port,
         "username": username,
         "password": password,
-        "container": container,
     }
 
     return hub.test.ROSTER[target_name]
@@ -94,7 +95,7 @@ def roster(hub):
     """
     Return roster file for all created containers
     """
-    roster = hub.test.ROSTER
-    with hub.lib.tempfile.NamedTemporaryFile(suffix=".yaml") as fh:
+    roster = hub.test.ROSTER.copy()
+    with hub.lib.tempfile.NamedTemporaryFile("w+", suffix=".yaml", delete=False) as fh:
         hub.lib.yaml.safe_dump(roster, fh)
         yield fh.name
