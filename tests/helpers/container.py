@@ -30,7 +30,7 @@ async def create(hub, username: str = "root", password: str = "pass"):
     target_name = f"soluble_agent_{hub.lib.uuid.uuid4()}"
 
     container = client.containers.run(
-        "python:3.10-slim",
+        "python:3.10",
         command=[
             "/bin/sh",
             "-c",
