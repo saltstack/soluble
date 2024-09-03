@@ -1,5 +1,10 @@
 async def run_command(
-    hub, name: str, command: str, *, capture_output: bool = True
+    hub,
+    name: str,
+    command: str,
+    *,
+    capture_output: bool = True,
+    hard_fail: bool = True,
 ) -> dict[str, object]:
     """Run a salt-ssh command asynchronously, handle all prompts, and return the output."""
     target = hub.soluble.RUN[name].ssh_target
@@ -31,7 +36,7 @@ async def run_command(
     process = await hub.lib.asyncio.create_subprocess_shell(
         full_command,
         stdout=stdout,
-        stderr=hub.lib.asyncio.subprocess.PIPE,
+        # stderr=hub.lib.asyncio.subprocess.PIPE,
     )
 
     # Wait for the process to complete and capture stdout at the end
@@ -39,7 +44,10 @@ async def run_command(
     returncode = await process.wait()
 
     if returncode != 0:
-        raise ChildProcessError(f"Command failed: {full_command}")
+        if hard_fail:
+            raise ChildProcessError(f"Command failed: {full_command}")
+        else:
+            return
 
     if not capture_output:
         return

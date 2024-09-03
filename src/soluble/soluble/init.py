@@ -1,4 +1,5 @@
 from soluble.conf import CLI_CONFIG
+from soluble.conf import SALT_SSH_GROUP
 from soluble.conf import SUBCOMMANDS
 
 
@@ -48,7 +49,7 @@ def cli(hub):
 
     # Turn salt-ssh opts into a string
     for name, opts in CLI_CONFIG.items():
-        if opts.get("group", "").lower() != "salt-ssh":
+        if opts.get("group") != SALT_SSH_GROUP:
             continue
 
         value = kwargs.pop(name, None)
@@ -121,7 +122,7 @@ async def setup(hub, name: str):
 async def run(hub, name: str) -> int:
     """This is where a soluble plugin runs its primary function"""
     hub.log.info("Soluble run")
-    await hub.salt.ssh.run_command(name, f"grains.items", capture_output=False)
+    await hub.salt.ssh.run_command(name, f"test.ping", capture_output=False)
     return 0
 
 

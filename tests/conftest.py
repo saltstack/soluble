@@ -9,11 +9,11 @@ def integration_hub():
     hub = pop.hub.Hub()
     hub.pop.sub.add("tests.helpers", subname="test")
     hub.pop.sub.add(dyne_name="soluble")
-
     hub.pop.sub.add(python_import="asyncio", sub=hub.lib)
     hub.pop.sub.add(python_import="asyncssh", sub=hub.lib)
     hub.pop.sub.add(python_import="docker", sub=hub.lib)
     hub.pop.sub.add(python_import="pathlib", sub=hub.lib)
+    hub.pop.sub.add(python_import="pop", sub=hub.lib)
     hub.pop.sub.add(python_import="pytest", sub=hub.lib)
     hub.pop.sub.add(python_import="pwd", sub=hub.lib)
     hub.pop.sub.add(python_import="uuid", sub=hub.lib)
@@ -21,10 +21,10 @@ def integration_hub():
     hub.pop.sub.add(python_import="socket", sub=hub.lib)
     hub.pop.sub.add(python_import="tempfile", sub=hub.lib)
 
-    with mock.patch("sys.argv", ["soluble"]):
-        hub.pop.config.load(["soluble"], cli="soluble", parse_cli=False)
+    hub.pop.config.load(["soluble"], cli="soluble", parse_cli=False)
 
-    yield hub
+    with mock.patch("sys.exit"):
+        yield hub
 
 
 @pytest.fixture(scope="function", autouse=True)

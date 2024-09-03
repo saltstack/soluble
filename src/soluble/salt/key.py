@@ -29,13 +29,9 @@ async def command(hub, name: str, action: Literal["-a", "-d"]):
 
     process = await hub.lib.asyncio.create_subprocess_shell(
         command,
-        stdout=hub.lib.asyncio.subprocess.PIPE,
     )
 
-    stdout, _ = await process.communicate()
     retcode = await process.wait()
     if retcode != 0:
         raise ChildProcessError(f"Failed to accept minion keys")
-    for line in stdout.splitlines():
-        hub.log.debug(line)
     return retcode

@@ -6,6 +6,8 @@ CONFIG = {
     },
 }
 
+GROUP = "Soluble Minion"
+
 CLI_CONFIG = {
     "minion_config": {"subcommands": ["minion"]},
     "salt_command": {
@@ -14,6 +16,7 @@ CLI_CONFIG = {
         "subcommands": ["minion"],
         "help": "The salt command to run on the ephemeral nodes",
         "dyne": "soluble",
+        "group": GROUP,
     },
     "salt_options": {
         "positional": True,
@@ -22,6 +25,7 @@ CLI_CONFIG = {
         "subcommands": ["minion"],
         "help": "Additional options to be passed to the salt command",
         "dyne": "soluble",
+        "group": GROUP,
     },
 }
 

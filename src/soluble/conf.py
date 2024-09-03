@@ -44,31 +44,39 @@ CONFIG = {
     },
 }
 
+GROUP = "Soluble Options"
+
 CLI_CONFIG = {
     "bootstrap": {
         "action": "store_true",
         "subcommands": ["_global_"],
+        "group": GROUP,
     },
     "escalate": {
         "action": "store_true",
         "subcommands": ["_global_"],
+        "group": GROUP,
     },
-    "roster_file": {"options": ["-R"]},
+    "roster_file": {"options": ["-R"], "group": GROUP},
     "ssh_target": {
         "positional": True,
         "display_priority": 0,
         "subcommands": [],
         "help": "Target for the salt-ssh command. This is typically a minion ID, wildcard, or grain.",
+        "group": GROUP,
     },
-    "salt_config_dir": {},
+    "salt_config_dir": {"group": GROUP},
     "salt_bin": {
         "subcommands": ["_global_"],
+        "group": GROUP,
     },
     "salt_key_bin": {
         "subcommands": ["_global_"],
+        "group": GROUP,
     },
 }
 
+SALT_SSH_GROUP = "Salt-SSH Options"
 SALT_SSH_OPTIONS = {}
 for name, opt in all_opts.items():
     if name in CLI_CONFIG:
@@ -86,7 +94,7 @@ for name, opt in all_opts.items():
         action=opt.action if "store" in opt.action else None,
         nargs=opt.nargs,
         options=opt._long_opts + opt._short_opts,
-        group="Salt-SSH",
+        group=SALT_SSH_GROUP,
     )
 
 CLI_CONFIG.update(SALT_SSH_OPTIONS)

@@ -5,9 +5,10 @@ CONFIG = {
         "dyne": "soluble",
     },
 }
+GROUP = "Soluble Master"
 
 CLI_CONFIG = {
-    "master_config": {"subcommands": ["master"]},
+    "master_config": {"subcommands": ["master"], "group": GROUP},
 }
 
 DYNE = {"soluble": ["soluble"]}

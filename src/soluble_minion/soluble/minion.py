@@ -64,21 +64,25 @@ async def teardown(hub, name: str):
     # Stop the Salt minion service
     hub.log.info("Stopping salt-minion service on target(s)...")
     await hub.salt.ssh.run_command(
-        name, "state.single service.disabled name=salt-minion"
+        name, "state.single service.disabled name=salt-minion", hard_fail=False
     )
-    await hub.salt.ssh.run_command(name, "state.single service.dead name=salt-minion")
+    await hub.salt.ssh.run_command(
+        name, "state.single service.dead name=salt-minion", hard_fail=False
+    )
 
     # Uninstall Salt from the target
     hub.log.info("Uninstalling Salt from target(s)...")
-    await hub.salt.ssh.run_command(name, "state.single pkg.removed name=salt-minion")
+    await hub.salt.ssh.run_command(
+        name, "state.single pkg.removed name=salt-minion", hard_fail=False
+    )
 
     # Remove the minion configuration file
     hub.log.info("Removing minion configuration from target(s)...")
     await hub.salt.ssh.run_command(
-        name, "state.single file.absent name=/etc/salt/minion"
+        name, "state.single file.absent name=/etc/salt/minion", hard_fail=False
     )
     await hub.salt.ssh.run_command(
-        name, "state.single file.absent name=/etc/salt/minion_id"
+        name, "state.single file.absent name=/etc/salt/minion_id", hard_fail=False
     )
 
     hub.log.info("Destroy ephemeral minion key(s) on Salt master...")
