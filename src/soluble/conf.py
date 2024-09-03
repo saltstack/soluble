@@ -42,6 +42,10 @@ CONFIG = {
         "default": shutil.which("salt-key"),
         "help": "Path to the salt-key command",
     },
+    "salt_ssh_bin": {
+        "default": shutil.which("salt-ssh"),
+        "help": "Path to the salt-ssh command",
+    },
 }
 
 GROUP = "Soluble Options"
@@ -71,6 +75,10 @@ CLI_CONFIG = {
         "group": GROUP,
     },
     "salt_key_bin": {
+        "subcommands": ["_global_"],
+        "group": GROUP,
+    },
+    "salt_ssh_bin": {
         "subcommands": ["_global_"],
         "group": GROUP,
     },

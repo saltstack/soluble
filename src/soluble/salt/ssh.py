@@ -13,7 +13,7 @@ async def run_command(
     config_dir = hub.soluble.RUN[name].salt_config_dir
     options = " ".join(x.strip('"') for x in hub.soluble.RUN[name].salt_ssh_options)
 
-    cmd = hub.lib.shutil.which("salt-ssh")
+    cmd = hub.soluble.RUN[name].salt_ssh_bin
     assert cmd, "Could not find salt-ssh"
 
     full_command = f"{cmd} '{target}' --roster-file={roster} {command} --log-level={hub.OPT.pop_config.log_level} {options}"
@@ -36,7 +36,6 @@ async def run_command(
     process = await hub.lib.asyncio.create_subprocess_shell(
         full_command,
         stdout=stdout,
-        # stderr=hub.lib.asyncio.subprocess.PIPE,
     )
 
     # Wait for the process to complete and capture stdout at the end

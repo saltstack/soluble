@@ -29,7 +29,14 @@ async def command(hub, name: str, action: Literal["-a", "-d"]):
 
     process = await hub.lib.asyncio.create_subprocess_shell(
         command,
+        stdout=hub.lib.asyncio.subprocess.PIPE,
     )
+
+    stdout, _ = await process.communicate()
+    for line in stdout.splitlines():
+        if not line.strip():
+            continue
+        hub.log.debug(line)
 
     retcode = await process.wait()
     if retcode != 0:
