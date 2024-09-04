@@ -2,12 +2,15 @@ async def run_command(
     hub,
     name: str,
     command: str,
-    *,
+    *args,
     capture_output: bool = True,
     hard_fail: bool = True,
+    target: str = None,
+    target_type: str = "glob",
 ) -> dict[str, object]:
     """Run a salt-ssh command asynchronously, handle all prompts, and return the output."""
-    target = hub.soluble.RUN[name].ssh_target
+    if target is None:
+        target = hub.soluble.RUN[name].ssh_target
     roster = hub.soluble.RUN[name].roster_file
     escalate = hub.soluble.RUN[name].escalate
     config_dir = hub.soluble.RUN[name].salt_config_dir
@@ -16,7 +19,16 @@ async def run_command(
     cmd = hub.soluble.RUN[name].salt_ssh_bin
     assert cmd, "Could not find salt-ssh"
 
-    full_command = f"{cmd} '{target}' --roster-file={roster} {command} --log-level={hub.OPT.pop_config.log_level} {options}"
+    # Add targeting logic based on the passed target_type
+    if target_type == "grain":
+        target_option = f"--grain '{target}'"
+    elif target_type == "grain_pcre":
+        target_option = f"--grain-pcre '{target}'"
+    else:
+        target_option = f"'{target}'"
+
+    full_command = f"{cmd} {target_option} --roster-file={roster} {command} --log-level={hub.OPT.pop_config.log_level} {options} {' '.join(args)}"
+
     if capture_output:
         full_command += " --no-color --out=json"
     if config_dir:

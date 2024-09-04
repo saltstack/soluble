@@ -21,6 +21,9 @@ async def setup(hub, name: str):
         f'state.single cmd.run name="echo {minion_id} > /etc/salt/minion_id"',
     )
 
+    # Set up salt repo if necessary
+    await hub.salt.repo.setup(name)
+
     # Install Salt on the target
     hub.log.info("Installing Salt on target(s)...")
     await hub.salt.ssh.run_command(name, "state.single pkg.installed name=salt-minion")
@@ -75,6 +78,9 @@ async def teardown(hub, name: str):
     await hub.salt.ssh.run_command(
         name, "state.single pkg.removed name=salt-minion", hard_fail=False
     )
+
+    # Remove the salt repo if necessary
+    await hub.salt.repo.teardown(name)
 
     # Remove the minion configuration file
     hub.log.info("Removing minion configuration from target(s)...")

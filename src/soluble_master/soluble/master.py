@@ -16,6 +16,9 @@ async def setup(hub, name: str):
             f"state.single file.managed source=file://{config.master_config} name=/etc/salt/master",
         )
 
+    # Set up salt repo if necessary
+    await hub.salt.repo.setup(name)
+
     # Install Salt on the target
     hub.log.info("Installing Salt on target(s)...")
     await hub.salt.ssh.run_command(name, "state.single pkg.installed name=salt-master")
@@ -55,6 +58,9 @@ async def teardown(hub, name: str):
     # Uninstall Salt from the target
     hub.log.info("Uninstalling Salt from target(s)...")
     await hub.salt.ssh.run_command(name, "state.single pkg.removed name=salt-master")
+
+    # Remove the salt repo if necessary
+    await hub.salt.repo.teardown(name)
 
     # Remove the master configuration file
     hub.log.info("Removing master configuration from target(s)...")

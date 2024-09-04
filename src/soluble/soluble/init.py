@@ -122,6 +122,7 @@ async def setup(hub, name: str):
 async def run(hub, name: str) -> int:
     """This is where a soluble plugin runs its primary function"""
     hub.log.info("Soluble run")
+    # TODO do a salt-ssh --raw
     await hub.salt.ssh.run_command(name, f"test.ping", capture_output=False)
     return 0
 
